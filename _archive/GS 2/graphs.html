@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Load CSS and JS files -->
+    <!-- 
+        Load your custom scripts!
+        These can retrieve and send data for the frontend,
+        as well as change the way the website looks!
+    -->
+    <link rel="stylesheet" href="graphs_styles.css">
+    <title>RP Solids Ground Station</title>
+    <link rel="stylesheet" type="text/css" href="css/epoch.min.css">
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
+<script src="graphs.js"></script>
+
+<body class="body">
+
+<div class="top-text">Graphs</div>
+
+<div class="alert">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>  
+    <strong>Lift-Off!</strong> Rocket has started accelerating!
+  </div>
+  <script>
+    var close = document.getElementsByClassName("closebtn");
+    var i;
+    
+    for (i = 0; i < close.length; i++) {
+      close[i].onclick = function(){
+        var div = this.parentElement;
+        div.style.opacity = "0";
+        setTimeout(function(){ div.style.display = "none"; }, 600);
+      }
+    }
+    </script>
+<div class="alert" style="background-color: coral;">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>  
+    <strong>Drogue Parachute Deployed!</strong> Rocket is coming back down!
+  </div>
+  <script>
+    var close = document.getElementsByClassName("closebtn");
+    var i;
+    
+    for (i = 0; i < close.length; i++) {
+      close[i].onclick = function(){
+        var div = this.parentElement;
+        div.style.opacity = "0";
+        setTimeout(function(){ div.style.display = "none"; }, 600);
+      }
+    }
+    </script>
+<div class="alert" style="background-color: darkgoldenrod;">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>  
+    <strong>Main Parachute Deployed!</strong> Rocket has started decelerating!
+  </div>
+  <script>
+    var close = document.getElementsByClassName("closebtn");
+    var i;
+    
+    for (i = 0; i < close.length; i++) {
+      close[i].onclick = function(){
+        var div = this.parentElement;
+        div.style.opacity = "0";
+        setTimeout(function(){ div.style.display = "none"; }, 600);
+      }
+    }
+    </script>
+<div class="top-row">
+    <div class="section">
+        <div class="graph-box">
+            <div id="lineChart1" class="epoch category10" style="height: 100%;"></div>
+            <script >
+                var lineChartData1 = [{label: "Series 1", range: 'range-l',
+                values: [{time: 169808190, y:0}, {time: 1698908190, y: 20}, {time: 1698908190, y: 80}   ]}, ];
+                var myChart1 = $('#lineChart1').epoch({
+                type: 'time.line',
+                data: lineChartData1,
+                range:{left: 'range-l'}, axes: ['left', 'bottom']
+                });
+                
+            </script>
+            
+            <p class="button-7" onclick="updateGraph()">click me to update chart</p>
+        </div>
+        <div class="graph-text">Altitude vs Time</div>
+    </div>
+    <div class="section">
+        <div class="graph-box">
+            <div id="lineChart2" class="epoch category10" style="height: 100%;"></div>
+            <script >
+                var lineChartData2 = [{label: "Series 1", range: 'range-l',
+                values: [{time: 169808190, y:0}, {time: 1698908190, y: 20}, {time: 1698908190, y: 80}   ]}, ];
+                var myChart2 = $('#lineChart2').epoch({
+                type: 'time.line',
+                data: lineChartData2,
+                range:{left: 'range-l'}, axes: ['left', 'bottom']
+                });
+                
+            </script>
+            
+            <p class="button-7" onclick="updateGraph()">click me to update chart</p>
+        </div>
+        <div class="graph-text">Acceleration vs Time</div>
+    </div>
+    <div class="section">
+        <div class="graph-box">
+            <div id="lineChart3" class="epoch category10" style="height: 100%;"></div>
+            <script >
+                var lineChartData3 = [{label: "Series 1", range: 'range-l',
+                values: [{time: 169808190, y:0}, {time: 1698908190, y: 20}, {time: 1698908190, y: 80}   ]}, ];
+                var myChart3 = $('#lineChart3').epoch({
+                type: 'time.line',
+                data: lineChartData3,
+                range:{left: 'range-l'}, axes: ['left', 'bottom']
+                });
+                
+            </script>
+            
+            <p class="button-7" onclick="updateGraph()">click me to update chart</p>
+        </div>
+        <div class="graph-text">Velocity vs Time</div>
+    </div>
+</div>
+
+<div class="bottom-row">
+    <div class="section">
+        <div class="graph-box">
+            <div id="lineChart4" class="epoch category10" style="height: 100%;"></div>
+            <script >
+                var lineChartData4 = [{label: "Series 1", range: 'range-l',
+                values: [{time: 169808190, y:0}, {time: 1698908190, y: 20}, {time: 1698908190, y: 80}   ]}, ];
+                var myChart4 = $('#lineChart4').epoch({
+                type: 'time.line',
+                data: lineChartData4,
+                range:{left: 'range-l'}, axes: ['left', 'bottom']
+                });
+                
+            </script>
+            
+            <p class="button-7" onclick="updateGraph()">click me to update chart</p>
+        </div>
+        <div class="graph-text">Orientation vs Time</div>
+    </div>
+    <div class="section">
+        <div class="graph-box">
+            <div id="lineChart5" class="epoch category10" style="height: 100%;"></div>
+            <script >
+                var lineChartData5 = [{label: "Series 1", range: 'range-l',
+                values: [{time: 169808190, y:0}, {time: 1698908190, y: 20}, {time: 1698908190, y: 80}   ]}, ];
+                var myChart5 = $('#lineChart5').epoch({
+                type: 'time.line',
+                data: lineChartData5,
+                range:{left: 'range-l'}, axes: ['left', 'bottom']
+                });
+                
+            </script>
+            
+            <p class="button-7" onclick="updateGraph()">click me to update chart</p>
+        </div>
+        <div class="graph-text">Pressure vs Time</div>
+    </div>
+    <div class="section">
+        <div class="graph-box">
+            <div id="lineChart6" class="epoch category10" style="height: 100%;"></div>
+            <script >
+                var lineChartData6 = [{label: "Series 1", range: 'range-l',
+                values: [{time: 169808190, y:0}, {time: 1698908190, y: 20}, {time: 1698908190, y: 80}   ]}, ];
+                var myChart6 = $('#lineChart6').epoch({
+                type: 'time.line',
+                data: lineChartData6,
+                range:{left: 'range-l'}, axes: ['left', 'bottom']
+                });
+                
+            </script>
+            
+            <p class="button-7" onclick="updateGraph()">click me to update chart</p>
+        </div>
+        <div class="graph-text">Temperature vs Time</div>
+    </div>
+</div>
+
+<div class="bottom-text">
+  <p><b>UCI Rocket Project Solids 2023-2024</b></p>
+</div>
+
+    
+        
+</body>
+</html>

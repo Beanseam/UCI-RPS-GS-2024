@@ -1,0 +1,48 @@
+:root{
+  --lr-color: #444444;
+  --if-color: #444444;
+  --ddepl-color: #444444;
+  --mdepl-color: #444444;
+}
+
+.state-container{
+    display:grid;
+    width: 100%;
+    height: fit-content;
+  }
+  
+  .lr-state{
+    height: 4rem;
+    line-height: 4rem;
+    font-family: "Times New Roman", Times, serif;
+    font-size: x-large;
+    font-weight: bold;
+    background-color: var(--lr-color);
+  }
+
+  .if-state{
+    height: 4rem;
+    line-height: 4rem;
+    font-family: "Times New Roman", Times, serif;
+    font-size: x-large;
+    font-weight: bold;
+    background-color: var(--if-color);
+  }
+
+  .ddepl-state{
+    height: 4rem;
+    line-height: 4rem;
+    font-family: "Times New Roman", Times, serif;
+    font-size: x-large;
+    font-weight: bold;
+    background-color: var(--ddepl-color);
+  }
+
+  .mdepl-state{
+    height: 4rem;
+    line-height: 4rem;
+    font-family: "Times New Roman", Times, serif;
+    font-size: x-large;
+    font-weight: bold;
+    background-color: var(--mdepl-color);
+  }

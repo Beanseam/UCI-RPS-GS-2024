@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "d3": "^7.8.5",
+    "epoch-charting": "^0.8.4",
+    "serialport": "^12.0.0"
+  }
+}

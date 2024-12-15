@@ -1,0 +1,139 @@
+.body{
+    background-color: #05133F;
+    height: 150%;
+}
+
+.top-row{
+    position: absolute;
+    height: 45%;
+    width: 100%;
+    top: 5%;
+}
+
+.bottom-row{
+    position: absolute;
+    height: 45%;
+    width: 100%;
+    bottom: 5%;
+}
+
+.section{
+    position: relative;
+    float: left;
+    width: 31%;
+    height: 100%;
+    margin-right: 2%;
+}
+.section:last-child {margin-right: 0%;}
+
+.graph-box{
+    position: relative;
+    top: 8%;
+    height: 80%;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: aliceblue;
+    color:black;
+}
+
+.graph-text{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    bottom: 5%;
+    color: antiquewhite;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+.top-text{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 2%;
+    color: white;
+    font-family: sans-serif;
+    font-size: 22px;
+}
+
+.bottom-text{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    bottom: 1%;
+    color: white;
+    font-family: sans-serif;
+    font-size: 22px;
+  }
+
+  .graph{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+.alert{
+  position: absolute;
+  padding: 20px;
+  background-color: #2196F3;
+  color: white;
+  opacity: 1;
+  transition: opacity 0.6s;
+  margin-bottom: 15px;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.closebtn:hover {
+  color: black;
+}
+
+/* CSS */
+.button-7 {
+  background-color: #0095ff;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  box-shadow: rgba(255, 255, 255, .4) 0 1px 0 0 inset;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI","Liberation Sans",sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.15385;
+  margin: 0;
+  outline: none;
+  padding: 8px .8em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.button-7:hover,
+.button-7:focus {
+  background-color: #07c;
+}
+
+.button-7:focus {
+  box-shadow: 0 0 0 4px rgba(0, 149, 255, .15);
+}
+
+.button-7:active {
+  background-color: #0064bd;
+  box-shadow: none;
+}

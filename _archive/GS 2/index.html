@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Load CSS and JS files -->
+    <!-- 
+        Load your custom scripts!
+        These can retrieve and send data for the frontend,
+        as well as change the way the website looks!
+    -->
+        <link rel="stylesheet" href="Index_styles.css">
+    <title>RP Solids Ground Station</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body style="margin: 0; background-color: #05133F;">
+
+<div>
+    <img src="rocket.png" class="center">
+</div>
+
+<main id="main-holder">
+  <h1 id="login-header">Login</h1>
+  
+  <div id="login-error-msg-holder">
+    <p id="login-error-msg">Invalid Username <span id="error-msg-second-line">and/or Password</span></p>
+  </div>
+  
+  <form id="login-form">
+    <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
+    <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password">
+    <input type="submit" value="Login" id="login-form-submit">
+  </form>
+
+</main>
+
+<div class="bottom-text">
+  <p><b>UCI Rocket Project Solids 2023-2024</b></p>
+</div>
+
+<!---
+    <div class="container">
+        <div class="main-header">
+            <div class="main-headertext" style="display:inline-flex" onclick="location.href='index.html'"><strong>ZotSell</strong></div>
+            <button class="button-86" style="float:right" onclick="location.href='addlisting.html'">Add A Listing +</button>
+            <button class="button-28" style="float:right" onclick="location.href='Signup.html'">Sign-Up</button>
+            <button class="button-28" style="float:right" onclick="location.href='Login.html'">Login</button>
+        </div>
+    </div>
+-->
+<!--
+    <div class="sidenav">
+        <div class="search-container">
+            <form action="/action_page.php">
+            <input type="text" placeholder="Search..." name="search">
+            <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+        <h1 class="side-text">Filters</h1>
+        <button class="dropdown-btn">Price
+            <i class="fa fa-caret-down"></i>
+          </button>
+          <div class="dropdown-container">
+            <input type="checkbox" id="price1" name="price1" value="LT20">
+            <label for="price1" style="font-size:larger;color:white;">&LT; 20</label><br>
+            <input type="checkbox" id="price2" name="price2" value="20-50">
+            <label for="price2" style="font-size: larger;color:white;">20 - 50</label><br>
+            <input type="checkbox" id="price3" name="price3" value="50-150">
+            <label for="price3" style="font-size: larger;color:white;">50 - 150</label><br>
+            <input type="checkbox" id="price4" name="price4" value="GT150">
+            <label for="price4" style="font-size: larger;color:white;">&GT; 150</label><br>
+          </div>
+        <button class="dropdown-btn">Condition
+            <i class="fa fa-caret-down"></i>
+        </button>
+          <div class="dropdown-container">
+            <input type="checkbox" id="condition1" name="condition1" value="new">
+            <label for="condition1" style="font-size: larger;color:white;">New</label><br>
+            <input type="checkbox" id="condition" name="condition2" value="good">
+            <label for="condition2" style="font-size: larger;color:white;">Good</label><br>
+            <input type="checkbox" id="condition3" name="condition3" value="acceptable">
+            <label for="condition3" style="font-size: larger;color:white;">Acceptable</label><br>
+          </div>
+          <button class="dropdown-btn">Posting Date
+            <i class="fa fa-caret-down"></i>
+        </button>
+          <div class="dropdown-container">
+            <input type="checkbox" id="date1" name="date1" value="date1">
+            <label for="date1" style="font-size: larger;color:white;">Past Month</label><br>
+            <input type="checkbox" id="date2" name="date2" value="date2">
+            <label for="date2" style="font-size: larger;color:white;">Past Year</label><br>
+            <input type="checkbox" id="date3" name="date3" value="date3">
+            <label for="date3" style="font-size: larger;color:white;">All Time</label><br>
+          </div>
+          <button class="dropdown-btn">Categories
+            <i class="fa fa-caret-down"></i>
+        </button>
+          <div class="dropdown-container">
+            <input type="checkbox" id="category1" name="category1" value="c&a">
+            <label for="category1" style="font-size: larger;color:white;">Clothing/Accessories</label><br>
+            <input type="checkbox" id="category2" name="category2" value="electronics">
+            <label for="category2" style="font-size: larger;color:white;">Electronics</label><br>
+            <input type="checkbox" id="category3" name="category3" value="shoes">
+            <label for="category3" style="font-size: larger;color:white;">Shoes</label><br>
+            <input type="checkbox" id="category4" name="category4" value="athletics">
+            <label for="category4" style="font-size: larger;color:white;">Athletics</label><br>
+            <input type="checkbox" id="category5" name="category5" value="jewelry">
+            <label for="category5" style="font-size: larger;color:white;">Jewelry</label><br>
+          </div>
+          <button class="button-48" role="button"><span class="text">Filter</span></button>
+    </div>
+-->
+<!--
+    <div class="box">
+      <p class="listing-header" style="text-align: center;">Listings</p>
+      <div class="grid-container" id="grid-container">
+        
+            
+      </div>
+
+    </div>
+-->
+    <!-- 
+        EXAMPLE!  
+        <div>
+          <h2 class="small-text">UCI Bucket Hat</h2>
+          <img src="https://image.artistshot.com/pd.147519743.55.1584309.s3.1-front-white-ffffff-none-x51.5y0-95-200x200.jpg"
+            style="width: 250px;height: 200px;">
+            <br>
+            <button class="button-81" role="button" onclick="location.href='Product.html'">More Info</button>
+        </div> -->
+     <!-- Listings will populate here! -->
+    <script src="index.js"></script>
+    
+        
+</body>
+</html>
