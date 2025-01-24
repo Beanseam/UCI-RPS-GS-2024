@@ -67,7 +67,11 @@ def get_data():
             return jsonify({"error": "No data available"}), 503
 
         return jsonify({
-            "acceleration": sensor_data['acceleration']
+            "acceleration": { 
+                x: sensor_data['acceleration'][0]
+                y: sensor_data['acceleration'][1]
+                z: sensor_data['acceleration'][2]
+            },
         })
 
     # return sensor_data
