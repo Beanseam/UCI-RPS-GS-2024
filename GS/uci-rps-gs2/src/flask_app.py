@@ -9,9 +9,10 @@ import json
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
-sensor_data = {}
-sensor_data_lock = threading.Lock()
 
+sensor_data_lock = threading.Lock()
+with sensor_data_lock:
+    sensor_data = {}
 def read_serial( port='COM6', baudrate=57600):
     global sensor_data
     global data
@@ -26,13 +27,12 @@ def read_serial( port='COM6', baudrate=57600):
     try:
         while True:
             line = ser.readline().decode("utf-8").strip()
-            with sensor_data_lock:
-                sensor_data = json.loads(line)
-            # data_list = line.split(',')
-            # if len(data_list) == 3:
-            #     with sensor_data_lock:
-            #         sensor_data['acceleration'] = (data_list[0], data_list[1], data_list[2]) 
-            #         sensor_data['timestamp'] = datetime.datetime.now()#.isoformat()
+
+            data_list = line.split(',')
+            if len(data_list) == 3:
+                with sensor_data_lock:
+                    sensor_data['acceleration'] = (data_list[0], data_list[1], data_list[2]) 
+                    sensor_data['timestamp'] = datetime.datetime.now()#.isoformat()
 
             print(sensor_data['acceleration'])
     except ValueError:
@@ -61,16 +61,18 @@ def get_data():
     # print(jsonify(sensor_data))
     # print("----------------")
     with sensor_data_lock:
+        global sensor_data
+        print(sensor_data)
         if not sensor_data:
             return jsonify({"error": "No data available"}), 503
-        return json_sensor_data
-        # return jsonify({
-        #     "acceleration": { 
-        #         x: sensor_data['acceleration'][0],
-        #         y: sensor_data['acceleration'][1],
-        #         z: sensor_data['acceleration'][2],
-        #     },
-        # })
+
+        return jsonify({
+            "acceleration": { 
+                "x": sensor_data['acceleration'][0],
+                "y": sensor_data['acceleration'][1],
+                "z": sensor_data['acceleration'][2],
+            },
+        })
 
     # return sensor_data
 
