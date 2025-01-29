@@ -68,8 +68,8 @@ def get_data():
 
         return jsonify({
             "acceleration": { 
-                x: sensor_data['acceleration'][0]
-                y: sensor_data['acceleration'][1]
+                x: sensor_data['acceleration'][0],
+                y: sensor_data['acceleration'][1],
                 z: sensor_data['acceleration'][2]
             },
         })
