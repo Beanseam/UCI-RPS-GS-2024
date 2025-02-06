@@ -6,6 +6,8 @@ import sys
 from collections import deque, defaultdict
 import datetime
 import json
+import csv_log.py
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
@@ -31,9 +33,11 @@ def read_serial( port='COM6', baudrate=57600):
             data_list = line.split(',')
             if len(data_list) == 3:
                 with sensor_data_lock:
-                    sensor_data['acceleration'] = (data_list[0], data_list[1], data_list[2]) 
+                    sensor_data['acceleration']['x'] = data_list[0]
+                    sensor_data['acceleration']['y'] =  data_list[1]
+                    sensor_data ['acceleration']['z'] = data_list[2]
                     sensor_data['timestamp'] = datetime.datetime.now()#.isoformat()
-
+            csv.write_to_csv(csv.flatten_data(sensor_data))
             print(sensor_data['acceleration'])
     except ValueError:
         print("Invalid sensor data format: ValueError")
@@ -67,11 +71,7 @@ def get_data():
             return jsonify({"error": "No data available"}), 503
 
         return jsonify({
-            "acceleration": { 
-                "x": sensor_data['acceleration'][0],
-                "y": sensor_data['acceleration'][1],
-                "z": sensor_data['acceleration'][2],
-            },
+            sensor_data
         })
 
     # return sensor_data
