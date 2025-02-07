@@ -11,7 +11,14 @@ import csv_log.py
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
-
+sensor_data_test = {
+    'acceleration': {
+        'x': 0,
+        'y': 0,
+        'z': 0
+    },
+    'timestamp': datetime.datetime.now().isoformat()
+}
 sensor_data_lock = threading.Lock()
 with sensor_data_lock:
     sensor_data = {}
@@ -64,6 +71,7 @@ def get_data():
     # print("REQUEST RECEIVED")
     # print(jsonify(sensor_data))
     # print("----------------")
+    return jsonify({sensor_data_test})
     with sensor_data_lock:
         global sensor_data
         print(sensor_data)
