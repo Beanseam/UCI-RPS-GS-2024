@@ -6,16 +6,15 @@ import sys
 from collections import deque, defaultdict
 import datetime
 import json
-import csv_log.py
-
+import csv_log
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
 sensor_data_test = {
     'acceleration': {
-        'x': 0,
-        'y': 0,
-        'z': 0
+        'x': 1,
+        'y': 4,
+        'z': 1
     },
     'timestamp': datetime.datetime.now().isoformat()
 }
@@ -71,7 +70,7 @@ def get_data():
     # print("REQUEST RECEIVED")
     # print(jsonify(sensor_data))
     # print("----------------")
-    return jsonify({sensor_data_test})
+    return jsonify(sensor_data_test)
     with sensor_data_lock:
         global sensor_data
         print(sensor_data)

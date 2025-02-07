@@ -22,7 +22,7 @@ def write_to_csv(data, filename = f'./csv/{datetime.date.today()}.csv'):
     os.makedirs('./csv', exist_ok=True)
     with open(filename, mode='a', newline='') as file:
         writer = csv.writer(file)
-        if file.tell() == 0:x
+        if file.tell() == 0:
             keys = data.keys()
             writer.writerow(keys)
         writer.writerow(values)
