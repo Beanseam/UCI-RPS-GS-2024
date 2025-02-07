@@ -70,7 +70,6 @@ def get_data():
     # print("REQUEST RECEIVED")
     # print(jsonify(sensor_data))
     # print("----------------")
-    return jsonify(sensor_data_test)
     with sensor_data_lock:
         global sensor_data
         print(sensor_data)
