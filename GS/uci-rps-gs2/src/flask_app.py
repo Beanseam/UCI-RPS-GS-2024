@@ -17,9 +17,7 @@ sensor_data_lock = threading.Lock()
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
 
-
-with sensor_data_lock:
-    sensor_data = {}
+sensor_data = {}
 
 def select_port():
     ports = serial.tools.list_ports.comports()
@@ -42,13 +40,13 @@ def select_port():
 
         
 
-def read_serial():
+def read_serial(serial_port, baudrate):
     global sensor_data
     global data
     print('Reading serial data...')
 
     try: 
-        ser = serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE) # for Windows
+        ser = serial.Serial(serial_port, baudrate) # for Windows
     except serial.SerialException as e:
         print(f"read_serial Error: {e}")
         #print(f"Error: {e}")
@@ -65,12 +63,10 @@ def read_serial():
                             'y': data_list[1],
                             'z': data_list[2]
                     }
-                    sensor_data['timestamp'] = datetime.datetime.now()#.isoformat()
-
+                    sensor_data['timestamp'] = datetime.datetime.now()
             csv.write_to_csv(csv.flatten_data(sensor_data))
             print(sensor_data['acceleration'])
-
-
+            
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
     except Exception as e:
@@ -79,7 +75,7 @@ def read_serial():
         ser.close()
   
 def start_serial_thread():
-    serial_thread = threading.Thread(target=read_serial, daemon = True )
+    serial_thread = threading.Thread(target=read_serial, daemon = True, args=(SERIAL_PORT, SERIAL_BAUDRATE))
     serial_thread.start()
     return serial_thread
 
