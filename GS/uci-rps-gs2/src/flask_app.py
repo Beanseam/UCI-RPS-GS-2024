@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import serial
 import threading
@@ -7,82 +7,118 @@ from collections import deque, defaultdict
 import datetime
 import json
 import csv_log
+import serial.tools.list_ports
+
+SERIAL_PORT = 'COM6'
+#/dev/tty.usbserial-B000J0YT for MAC
+SERIAL_BAUDRATE = 57600
+sensor_data_lock = threading.Lock()
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
-sensor_data_test = {
-    'acceleration': {
-        'x': 1,
-        'y': 4,
-        'z': 1
-    },
-    'timestamp': datetime.datetime.now().isoformat()
-}
-sensor_data_lock = threading.Lock()
+
+
 with sensor_data_lock:
     sensor_data = {}
-def read_serial( port='COM6', baudrate=57600):
+
+def select_port():
+    ports = serial.tools.list_ports.comports()
+    if not ports:
+        print("No serial ports found. Exiting.")
+        sys.exit(1)
+
+    print("Available ports:")
+    for i, port in enumerate(ports):
+        print(f"{i}: {port}")
+
+    while True:
+        try:
+            port_index = int(input("Select a port: "))
+            if 0 <= port_index < len(ports):
+                return ports[port_index].device
+            print("Invalid port index.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+        
+
+def read_serial():
     global sensor_data
     global data
     print('Reading serial data...')
+
     try: 
-        ser = serial.Serial(port, baudrate) # for Windows
-        # ser = serial.Serial('/dev/tty.usbserial-B000J0YT', 57600) # for Mac
+        ser = serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE) # for Windows
     except serial.SerialException as e:
-        print(f"Error: {e}")
+        print(f"read_serial Error: {e}")
+        #print(f"Error: {e}")
         sys.exit(1)
 
     try:
         while True:
             line = ser.readline().decode("utf-8").strip()
-
             data_list = line.split(',')
             if len(data_list) == 3:
                 with sensor_data_lock:
-                    sensor_data['acceleration']['x'] = data_list[0]
-                    sensor_data['acceleration']['y'] =  data_list[1]
-                    sensor_data ['acceleration']['z'] = data_list[2]
+                    sensor_data['acceleration'] = {
+                            'x': data_list[0],
+                            'y': data_list[1],
+                            'z': data_list[2]
+                    }
                     sensor_data['timestamp'] = datetime.datetime.now()#.isoformat()
+
             csv.write_to_csv(csv.flatten_data(sensor_data))
             print(sensor_data['acceleration'])
-    except ValueError:
-        print("Invalid sensor data format: ValueError")
+
+
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
-    except:
-        print("Error: Unknown")
+    except Exception as e:
+        print("Error: {e}")
     finally:
         ser.close()
-
-        
+  
 def start_serial_thread():
     serial_thread = threading.Thread(target=read_serial, daemon = True )
-
     serial_thread.start()
     return serial_thread
 
 @app.route('/data')
 def get_data():
-    """
-    Return the most recently read sensor data in JSON form.
-    If data is not yet available, return an error message with status 503.
-    """
-    # print("REQUEST RECEIVED")
-    # print(jsonify(sensor_data))
-    # print("----------------")
     with sensor_data_lock:
         global sensor_data
         print(sensor_data)
+
         if not sensor_data:
             return jsonify({"error": "No data available"}), 503
 
-        return jsonify({
-            sensor_data
-        })
+        return jsonify(sensor_data)
 
-    # return sensor_data
+def send_command(command):
+    try:
+        with serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE) as ser:
+            print(f"Sending command: {command}")
+            ser.write(command.encode())
+            # ser.flush()
+    except Exception as e:
+        print(f"Error: {e}")
+
+@app.route('/send', methods=['POST'])
+def send_data():
+   # print("Received POST request")
+    try:
+        state = request.json["state"]
+        if state == "on":
+            send_command("1")
+        elif state == "off":
+            send_command("2")
+        return jsonify({"status" : "OK", "state": state})
+    except Exception as e:
+        return jsonify({"status": "Error", "error": str(e)})
 
 if __name__ == '__main__':
+    SERIAL_PORT = select_port()
     start_serial_thread()
     app.run(debug=True)
+    
     
