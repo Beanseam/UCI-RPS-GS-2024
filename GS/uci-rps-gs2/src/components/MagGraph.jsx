@@ -1,65 +1,14 @@
-// import React from 'react'
-// import Highcharts from "highcharts";
-// import HighchartsReact from "highcharts-react-official";
-// // import "./Graph.css";
-
-// Highcharts.chart('container', {
-//   chart: {
-//     type: 'spline',
-//     animation: Highcharts.svg, // don't animate in old IE
-//     marginRight: 10,
-//     events: {
-//       load: function() {
-//         var chart = this;
-//         setInterval(function() {
-//           chart.series.forEach(function(s) {
-//             for (var i = 0; i < 20; i++) {
-//               s.addPoint(Math.random(), false, true);
-//             }
-//           });
-//           chart.redraw();
-//         }, 1000);
-//       }
-//     }
-//   },
-//   series: [{}, {}, {}].map(function(s) {
-//     s.data = [];
-//     for (var i = 0; i < 100; i++) {
-//       s.data.push(Math.random());
-//     }
-//     return s;
-//   })
-// });
-
-
-// function Graph() {
-//   return (
-//     <div className="flexbox-container">
-//       Graph1
-
-//       <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-//     </div>
-//   )
-// }
-
-// export default Graph
-
-
-
-
-
-
-import React from 'react'
-import HighchartsReact from 'highcharts-react-official'
-import Highcharts from 'highcharts'
+import React from 'react';
+import HighchartsReact from 'highcharts-react-official';
+import Highcharts from 'highcharts';
 
 export default class Container extends React.Component {
     constructor() {
-        super()
+        super();
         this.state = {
-            chartOptions: {
+            chartOptionsX: {
                 title: {
-                    text: 'Magnetic Field vs. Time'
+                    text: 'Magnetic Field (X-Axis) vs. Time'
                 },
                 xAxis: {
                     title: {
@@ -75,36 +24,83 @@ export default class Container extends React.Component {
                     {
                         name: 'X-Axis',
                         data: []
-                    },
+                    }
+                ]
+            },
+            chartOptionsY: {
+                title: {
+                    text: 'Magnetic Field (Y-Axis) vs. Time'
+                },
+                xAxis: {
+                    title: {
+                        text: 'Time (sec)'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Magnetic Field (uTesla)'
+                    }
+                },
+                series: [
                     {
                         name: 'Y-Axis',
                         data: []
-                    },
+                    }
+                ]
+            },
+            chartOptionsZ: {
+                title: {
+                    text: 'Magnetic Field (Z-Axis) vs. Time'
+                },
+                xAxis: {
+                    title: {
+                        text: 'Time (sec)'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Magnetic Field (uTesla)'
+                    }
+                },
+                series: [
                     {
                         name: 'Z-Axis',
                         data: []
                     }
                 ]
             }
-        }
+        };
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.magDataX !== this.props.magDataX) {
+        if (prevProps.magDataX !== this.props.magDataX || 
+            prevProps.magDataY !== this.props.magDataY || 
+            prevProps.magDataZ !== this.props.magDataZ) {
+            
             this.setState(prevState => ({
-                chartOptions: {
-                    ...prevState.chartOptions,
+                chartOptionsX: {
+                    ...prevState.chartOptionsX,
                     series: [
                         {
-                            ...prevState.chartOptions.series[0],
+                            ...prevState.chartOptionsX.series[0],
                             data: this.props.magDataX
-                        },
+                        }
+                    ]
+                },
+                chartOptionsY: {
+                    ...prevState.chartOptionsY,
+                    series: [
                         {
-                            ...prevState.chartOptions.series[1],
+                            ...prevState.chartOptionsY.series[0],
                             data: this.props.magDataY
-                        },
+                        }
+                    ]
+                },
+                chartOptionsZ: {
+                    ...prevState.chartOptionsZ,
+                    series: [
                         {
-                            ...prevState.chartOptions.series[2],
+                            ...prevState.chartOptionsZ.series[0],
                             data: this.props.magDataZ
                         }
                     ]
@@ -115,11 +111,23 @@ export default class Container extends React.Component {
 
     render() {
         return (
-            <HighchartsReact
-                containerProps={{ style: { height: "33.33%" } }}
-                highcharts={Highcharts}
-                options={this.state.chartOptions}
-            />
+            <div>
+                <HighchartsReact
+                containerProps={{ style: {height: "180px" } }}
+                    highcharts={Highcharts}
+                    options={this.state.chartOptionsX}
+                />
+                <HighchartsReact
+                containerProps={{ style: {height: "180px" } }}
+                    highcharts={Highcharts}
+                    options={this.state.chartOptionsY}
+                />
+                <HighchartsReact
+                containerProps={{ style: {height: "180px" } }}
+                    highcharts={Highcharts}
+                    options={this.state.chartOptionsZ}
+                />
+            </div>
         );
     }
 }

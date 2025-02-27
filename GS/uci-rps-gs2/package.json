@@ -10,12 +10,16 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@react-three/drei": "^8.20.2",
+    "@react-three/fiber": "^8.18.0",
     "axios": "^1.4.0",
     "highcharts": "^10.3.3",
     "highcharts-react-official": "^3.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
+    "three": "^0.173.0",
+    "three-stdlib": "^2.35.13",
     "web-vitals": "^4.2.4"
   },
   "browserslist": {

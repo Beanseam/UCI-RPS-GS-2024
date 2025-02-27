@@ -53,7 +53,7 @@ export default class Container extends React.Component {
   render() {
     return (
       <HighchartsReact
-        containerProps={{ style: { height: "66.66%" } }}
+      containerProps={{ style: {height: "270px" } }} 
         highcharts={Highcharts}
         options={this.state.chartOptions}
       />
