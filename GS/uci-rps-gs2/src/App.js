@@ -97,7 +97,13 @@ function App() {
             acc_x_2: [...prevState.acc_x_2, parseFloat(values[13])],
             acc_y_2: [...prevState.acc_y_2, parseFloat(values[14])],
             acc_z_2: [...prevState.acc_z_2, parseFloat(values[15])],
-            state: [...prevState.state, parseFloat(values[16])]
+            state: [...prevState.state, parseFloat(values[16])],
+            quat: {
+              x: parseFloat(values[17]),
+              y: parseFloat(values[18]),
+              z: parseFloat(values[19]),
+              w: parseFloat(values[20])
+            }
           }));
         }
         console.log();
@@ -164,7 +170,7 @@ function App() {
 
         <footer className="flex flex-row justify-between items-center bg-gray-800 text-white p-4">
           <div>
-            <Model/>
+            <Model quaternion={sensorData?.quat ?? { x: 0, y: 0, z: 0, w: 1 }} />
           </div>
           <div className="text-center pr-10">
             <p className="text-lg">
