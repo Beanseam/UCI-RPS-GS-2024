@@ -113,17 +113,17 @@ export default class Container extends React.Component {
         return (
             <div>
                 <HighchartsReact
-                    containerProps={{ style: { height: "33.33%" } }}
+                containerProps={{ style: {height: "180px" } }}
                     highcharts={Highcharts}
                     options={this.state.chartOptionsX}
                 />
                 <HighchartsReact
-                    containerProps={{ style: { height: "33.33%" } }}
+                containerProps={{ style: {height: "180px" } }}
                     highcharts={Highcharts}
                     options={this.state.chartOptionsY}
                 />
                 <HighchartsReact
-                    containerProps={{ style: { height: "33.33%" } }}
+                containerProps={{ style: {height: "180px" } }}
                     highcharts={Highcharts}
                     options={this.state.chartOptionsZ}
                 />
