@@ -34,7 +34,7 @@ function download(data) {
 
 function saveData(data) {
   const headers = ['Altitude','Temperature','Pressure','Acceleration_X','Acceleration_Y','Acceleration_Z',
-    'Gyroscope_X','Gyroscope_Y','Gyroscope_Z','Magnetometer_X','Magnetometer_Y','Magnetometer_Z','Acceleration2_X',
+    /*'Gyroscope_X','Gyroscope_Y','Gyroscope_Z',*/'Magnetometer_X','Magnetometer_Y','Magnetometer_Z','Acceleration2_X',
     'Acceleration2_Y','Acceleration2_Z'];
   const values = Object.values(data);
   const csvData = [headers.join(','), values.join(',')].join('\n');
@@ -45,9 +45,9 @@ function resetData(data) {
   data = {
     time: [], alt: [], temp: [], pres: [],
     acc_x: [], acc_y: [], acc_z: [],
-    gyro_x: [], gyro_y: [], gyro_z: [],
+    // gyro_x: [], gyro_y: [], gyro_z: [],
     mag_x: [], mag_y: [], mag_z: [],
-    acc_x_2: [], acc_y_2: [], acc_z_2: [], state: []
+    acc_x_2: [], acc_y_2: [], acc_z_2: []//, state: []
   };
   alert("Deleted Data");
 }
@@ -56,9 +56,9 @@ function App() {
   const [sensorData, setSensorData] = useState({
     time: [], alt: [], temp: [], pres: [],
     acc_x: [], acc_y: [], acc_z: [],
-    gyro_x: [], gyro_y: [], gyro_z: [],
+    //gyro_x: [], gyro_y: [], gyro_z: [],
     mag_x: [], mag_y: [], mag_z: [],
-    acc_x_2: [], acc_y_2: [], acc_z_2: [], state: []
+    acc_x_2: [], acc_y_2: [], acc_z_2: []//, state: []
   });
 
   useEffect(() => {
@@ -81,29 +81,31 @@ function App() {
         if (values.length === 17 && prevState.time[prevState.time.length-1] != values[0]) {
           setSensorData(prevState => ({
             ...prevState,
-            time: [...prevState.time, parseFloat(values[0])],
-            alt: [...prevState.alt, parseFloat(values[1])],
-            temp: [...prevState.temp, parseFloat(values[2])],
-            pres: [...prevState.pres, parseFloat(values[3])],
-            acc_x: [...prevState.acc_x, parseFloat(values[4])],
-            acc_y: [...prevState.acc_y, parseFloat(values[5])],
-            acc_z: [...prevState.acc_z, parseFloat(values[6])],
-            gyro_x: [...prevState.gyro_x, parseFloat(values[7])],
-            gyro_y: [...prevState.gyro_y, parseFloat(values[8])],
-            gyro_z: [...prevState.gyro_z, parseFloat(values[9])],
-            mag_x: [...prevState.mag_x, parseFloat(values[10])],
-            mag_y: [...prevState.mag_y, parseFloat(values[11])],
-            mag_z: [...prevState.mag_z, parseFloat(values[12])],
-            acc_x_2: [...prevState.acc_x_2, parseFloat(values[13])],
-            acc_y_2: [...prevState.acc_y_2, parseFloat(values[14])],
-            acc_z_2: [...prevState.acc_z_2, parseFloat(values[15])],
-            state: [...prevState.state, parseFloat(values[16])],
+            
+            temp: [...prevState.temp, parseFloat(values[0])],
+            pres: [...prevState.pres, parseFloat(values[1])],
+            alt: [...prevState.alt, parseFloat(values[2])],
+            acc_x_2: [...prevState.acc_x_2, parseFloat(values[3])],
+            acc_y_2: [...prevState.acc_y_2, parseFloat(values[4])],
+            acc_z_2: [...prevState.acc_z_2, parseFloat(values[5])],
+            acc_x: [...prevState.acc_x, parseFloat(values[6])],
+            acc_y: [...prevState.acc_y, parseFloat(values[7])],
+            acc_z: [...prevState.acc_z, parseFloat(values[8])],
+            mag_x: [...prevState.mag_x, parseFloat(values[9])],
+            mag_y: [...prevState.mag_y, parseFloat(values[10])],
+            mag_z: [...prevState.mag_z, parseFloat(values[11])],
             quat: {
-              x: parseFloat(values[17]),
-              y: parseFloat(values[18]),
-              z: parseFloat(values[19]),
-              w: parseFloat(values[20])
-            }
+              x: parseFloat(values[12]),
+              y: parseFloat(values[13]),
+              z: parseFloat(values[14]),
+              w: parseFloat(values[15])
+            },
+            time: [...prevState.time, parseFloat(values[16])],
+            // gyro_x: [...prevState.gyro_x, parseFloat(values[7])],
+            // gyro_y: [...prevState.gyro_y, parseFloat(values[8])],
+            // gyro_z: [...prevState.gyro_z, parseFloat(values[9])],
+            //state: [...prevState.state, parseFloat(values[16])],
+            
           }));
         }
         console.log();
@@ -127,7 +129,7 @@ function App() {
             <p class="alignleft"><button class="reset-button" type="button" onClick={() => resetData(sensorData)}>Reset Data</button>
             <button class="save-button" type="button" onClick={() => saveData(sensorData)}>Save Data</button></p>
             <h1 style={{ fontSize: '2.5em', width: "33.33333%", textAlign:"center", float: "left"}}>UCI Rocket Project Solids - Ground Station</h1>
-            <p class="alignright"><States stateData={sensorData['state']} /></p>
+            {/* <p class="alignright"><States stateData={sensorData['state']} /></p> */}
           </div>
         </header>
 
@@ -135,11 +137,11 @@ function App() {
           <div className="flex flex-cols-2 bg-blue-900 p-0 m-0" >
             <div className="w-1/2 bg-blue-900 p-0 m-0 h-3/4">
               <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
-              <GyroGraph
+              {/* <GyroGraph
                 gyroDataX = {sensorData['gyro_x']}
                 gyroDataY = {sensorData['gyro_y']}
                 gyroDataZ = {sensorData['gyro_z']}
-              />          
+              />           */}
             </div>
       
             <div className='flex flex-col bg-blue-900 p-0 m-1px w-1/2 h-3/4'>
@@ -170,14 +172,14 @@ function App() {
 
         <footer className="flex flex-row justify-between items-center bg-gray-800 text-white p-4">
           <div>
-            <Model quaternion={sensorData?.quat ?? { x: 0, y: 0, z: 0, w: 1 }} />
+            <Model quaternion={sensorData?.['quat'] ?? { x: 0, y: 0, z: 0, w: 1 }} />
           </div>
           <div className="text-center pr-10">
             <p className="text-lg">
-              Time: {typeof values !== "undefined" && values[0] ? parseFloat(values[0]) : 'N/A'} | 
-              Altitude: {typeof values !== "undefined" && values[1] ? parseFloat(values[1]) : 'N/A'} | 
-              Temperature: {typeof values !== "undefined" && values[2] ? parseFloat(values[2]) : 'N/A'} | 
-              Pressure: {typeof values !== "undefined" && values[3] ? parseFloat(values[3]) : 'N/A'}
+              Time: {sensorData?.['time'][sensorData['time'].length-1] ?? 'N/A'} | 
+              Altitude: {sensorData?.['alt'][sensorData['alt'].length-1] ?? 'N/A'} | 
+              Temperature: {sensorData?.['temp'][sensorData['temp'].length-1] ?? 'N/A'} | 
+              Pressure: {sensorData?.['pres'][sensorData['pres'].length-1] ?? 'N/A'}
             </p>
 
             <table className="overflow-y-auto h-1/4 w-full border border-gray-500 text-white">
@@ -192,27 +194,27 @@ function App() {
               <tbody className="bg-gray-800">
                 <tr>
                   <td className="border border-gray-500 px-4 py-2">Acceleration LSM</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[4] ? parseFloat(values[4]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[5] ? parseFloat(values[5]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[6] ? parseFloat(values[6]) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_x'][sensorData['acc_x'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_y'][sensorData['acc_y'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_z'][sensorData['acc_z'].length-1] ?? 'N/A'}</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-500 px-4 py-2">Acceleration LIS</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[13] ? parseFloat(values[13]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[14] ? parseFloat(values[14]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[15] ? parseFloat(values[15]) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_x_2'][sensorData['acc_x_2'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_y_2'][sensorData['acc_y_2'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_z_2'][sensorData['acc_z_2'].length-1] ?? 'N/A'}</td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <td className="border border-gray-500 px-4 py-2">Angular Speed</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[7] ? parseFloat(values[7]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[8] ? parseFloat(values[8]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[9] ? parseFloat(values[9]) : 'N/A'}</td>
-                </tr>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['time'][sensorData['time'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['time'][sensorData['time'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['time'][sensorData['time'].length-1] ?? 'N/A'}</td>
+                </tr> */}
                 <tr>
                   <td className="border border-gray-500 px-4 py-2">Magnetometer</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[10] ? parseFloat(values[10]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[11] ? parseFloat(values[11]) : 'N/A'}</td>
-                  <td className="border border-gray-500 px-4 py-2">{typeof values !== "undefined" && values[12] ? parseFloat(values[12]) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['mag_x'][sensorData['mag_x'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['mag_y'][sensorData['mag_y'].length-1] ?? 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{sensorData?.['mag_z'][sensorData['mag_z'].length-1] ?? 'N/A'}</td>
                 </tr>
               </tbody>
             </table>
