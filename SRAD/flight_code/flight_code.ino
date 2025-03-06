@@ -81,6 +81,7 @@ void loop(){
 
 // LSM9DS1 Data
   LSM9DS1_SensorData LSM9DS1_data = LSM9DS1Module.readData();
+
   if (LSM9DS1_data.accel_x != -999 && LSM9DS1_data.accel_y != -999 && LSM9DS1_data.accel_z != -999 &&
       LSM9DS1_data.gyro_x != -999 && LSM9DS1_data.gyro_y != -999 && LSM9DS1_data.gyro_z != -999 &&
       LSM9DS1_data.mag_x != -999 && LSM9DS1_data.mag_y != -999 && LSM9DS1_data.mag_z != -999){
@@ -96,6 +97,9 @@ void loop(){
         Mag_y = LSM9DS1_data.mag_y;
         Mag_z = LSM9DS1_data.mag_z;
       }
+  else {
+    Serial.println("Failed to get LSM9DS1 data");
+  }
 
 
 // Print combined data
