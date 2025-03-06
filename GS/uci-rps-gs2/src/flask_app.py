@@ -58,10 +58,27 @@ def read_serial(serial_port, baudrate):
             data_list = line.split(',')
             if len(data_list) == 3:
                 with sensor_data_lock:
+                    sensor_data['temperature'] = data_list[0]
+                    sensor_data['press'] = data_list[1]
+                    sensor_data['altitude'] = data_list[2]
                     sensor_data['acceleration'] = {
-                            'x': data_list[0],
-                            'y': data_list[1],
-                            'z': data_list[2]
+                            'x2': data_list[3],
+                            'y2': data_list[4],
+                            'z2': data_list[5],
+                            'x': data_list[6],
+                            'y': data_list[7],
+                            'z': data_list[8]
+                    }
+                    sensor_data['mag'] = {
+                            'x': data_list[9],
+                            'y': data_list[10],
+                            'z': data_list[11]
+                    }
+                    sensor_data['quaternion'] = {
+                            '1': data_list[12],
+                            '2': data_list[13],
+                            '3': data_list[14],
+                            '4': data_list[15]
                     }
                     sensor_data['timestamp'] = datetime.datetime.now()
             csv.write_to_csv(csv.flatten_data(sensor_data))
