@@ -28,6 +28,11 @@ def select_port():
     print("Available ports:")
     for i, port in enumerate(ports):
         print(f"{i}: {port}")
+        print(f"   Device: {port.device}")
+        print(f"   Description: {port.description}")
+        print(f"   Hardware ID: {port.hwid}")
+        print("-" * 40)
+
 
     while True:
         try:
