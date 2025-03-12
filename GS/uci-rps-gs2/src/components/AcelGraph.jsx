@@ -1,74 +1,43 @@
-import React from 'react'
-import HighchartsReact from 'highcharts-react-official'
-import Highcharts from 'highcharts'
+import React, { useState, useEffect } from 'react';
+import HighchartsReact from 'highcharts-react-official';
+import Highcharts from 'highcharts';
 
-export default class Container extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            chartOptions: {
-                title: {
-                    text: 'Acceleration vs. Time (LSM)'
-                },
-                xAxis: {
-                    title: {
-                        text: 'Time (sec)'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Acceleration (m/s^2)'
-                    }
-                },
-                series: [
-                    {
-                        name: 'X-Axis',
-                        data: []
-                    },
-                    {
-                        name: 'Y-Axis',
-                        data: []
-                    },
-                    {
-                        name: 'Z-Axis',
-                        data: []
-                    }
-                ]
-            }
-        }
-    }
+const AccelerationGraph = ({ timeData = [], acelDataX = [], acelDataY = [], acelDataZ = [] }) => {
+  const [chartOptions, setChartOptions] = useState({
+    title: { text: 'Acceleration vs. Time (LSM)' },
+    xAxis: { title: { text: 'Time (sec)' } },
+    yAxis: { title: { text: 'Acceleration (m/s²)' } },
+    series: [
+      { name: 'X-Axis', data: [] },
+      { name: 'Y-Axis', data: [] },
+      { name: 'Z-Axis', data: [] }
+    ]
+  });
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.acelDataX !== this.props.acelDataX) {
-            this.setState(prevState => ({
-                chartOptions: {
-                    ...prevState.chartOptions,
-                    series: [
-                        {
-                            ...prevState.chartOptions.series[0],
-                            data: this.props.acelDataX
-                        },
-                        {
-                            ...prevState.chartOptions.series[1],
-                            data: this.props.acelDataY
-                        },
-                        {
-                            ...prevState.chartOptions.series[2],
-                            data: this.props.acelDataZ
-                        }
-                    ]
-                }
-            }));
-        }
-    }
+  useEffect(() => {
+    if (timeData.length === acelDataX.length) {
+      const formattedDataX = timeData.map((t, index) => [t, acelDataX[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [t, acelDataY[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [t, acelDataZ[index] ?? 0]);
 
-    render() {
-        return (
-            <HighchartsReact
-            containerProps={{ style: {height: "270px" } }} 
-                highcharts={Highcharts}
-                options={this.state.chartOptions}
-            />
-        );
+      setChartOptions(prevOptions => ({
+        ...prevOptions,
+        series: [
+          { ...prevOptions.series[0], data: formattedDataX },
+          { ...prevOptions.series[1], data: formattedDataY },
+          { ...prevOptions.series[2], data: formattedDataZ }
+        ]
+      }));
     }
-}
+  }, [timeData, acelDataX, acelDataY, acelDataZ]);
+
+  return (
+    <HighchartsReact
+      containerProps={{ style: { height: "270px" } }}
+      highcharts={Highcharts}
+      options={chartOptions}
+    />
+  );
+};
+
+export default AccelerationGraph;
