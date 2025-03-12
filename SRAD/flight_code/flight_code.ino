@@ -1,6 +1,7 @@
 // Include custom libraries
 
 #include <Arduino.h>
+#include <SD.h>
 
 #include "BPM390_Module.h"
 #include "LIS3DH_Module.h"
@@ -12,9 +13,11 @@
 #define drogue_1 12   // drogue primary
 #define drogue_2 9  // drogue secondary
 #define buzzer 39    // buzzer
+#define camera1 20 // camera1
+#define camera2 21 // camera2
 
 #define HWSERIAL Serial7 // Hardware Serial Needed for RF
-
+#define CAM_SERIAL Serial1 // Serial for Camera
 
 
 
@@ -31,6 +34,7 @@ Madgwick filter;
 float Temp = 0;
 float Press = 0;
 float Alt = 0;
+float startAlt = 0;
 float Accel_x2 = 0;
 float Accel_y2 = 0;
 float Accel_z2 = 0;
@@ -50,8 +54,8 @@ float Quaternion_4 = 0;
 
 // Declare rocket stage detection variables
 const int delay_time = 10;
-const int charge_delay = 500;
-const int backup_delay = 2500;
+const int charge_delay = 2000; //500
+const int backup_delay = 4000; //2500
 bool launch_flag = 0;
 bool drogue_flag = 0;
 bool main_flag = 0;
@@ -60,19 +64,43 @@ int rise_counter = 0;
 float pre_alt = 0;
 int stage;
 
-
+void writeSD(String data) {
+  File dataFile = SD.open("rocket.csv", FILE_WRITE);  
+  if (dataFile) {
+    dataFile.println(data);
+    dataFile.close();
+  }
+  else {
+    Serial.println("Error Opening Data File.\n");
+  }
+}
 
 void setup() {
   Serial.begin(11520);
-  while (!Serial);
+  // while (!Serial);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  
+  if (!SD.begin(BUILTIN_SDCARD)) {
+  // Serial.print("card failed, or not present.\n");
+  tone(buzzer, 3000, 5000);
+  exit(0);
+  }
 
   HWSERIAL.begin(57600);
+  CAM_SERIAL.begin(57600);
 
   pinMode(main_1, OUTPUT);
   pinMode(main_2, OUTPUT);
   pinMode(drogue_1, OUTPUT);
   pinMode(drogue_2, OUTPUT);
   pinMode(buzzer, OUTPUT);
+  pinMode(camera1, OUTPUT);
+  pinMode(camera2, OUTPUT);
+
+
+  
 
 // BPM390 Setup
   Serial.println("BMP390 Setup");
@@ -96,14 +124,30 @@ void setup() {
 
   filter.begin(200); // Initialize Madwick at 200Hz
 
+  String dataString = "Temp,Press,Alt,Accel_x2,Accel_y2,Accel_z2,Accel_x,Accel_y,Accel_z,Gyro_x,Gyro_y,Gyro_z,Mag_x,Mag_y,Mag_z,Quaternion_1,Quaternion_2,Quaternion_3,Quaternion_4,Stage";
+  writeSD(dataString);
+  tone(buzzer, 3000, 5000);
+
+  for (int i = 0; i <= 10; i++){
+     BPM_SensorData BPM_data = bmpModule.readData();
+    if (BPM_data.temperature != -999) {
+    startAlt = BPM_data.altitude;
+  }
+    else {
+    Serial.println("Failed to get BPM390 data");
+  }}
+ 
+
+  // Serial.println(startAlt);
+  delay(1000);
+
 }
+  
 
 void loop(){
 // BPM390 Data
 
   // digitalWrite(main_1, HIGH);
-  
-
   BPM_SensorData BPM_data = bmpModule.readData();
   if (BPM_data.temperature != -999) {
     Temp = BPM_data.temperature;
@@ -173,6 +217,7 @@ void loop(){
       stage = 1;
 
       // HWSERIAL.println("Launch Detected\n\n\n\n\n\n\n\n\n\n\n");
+      writeSD("Launch Detected!");
 
     } else if (pre_alt - Alt < 0) {
       rise_counter = rise_counter + 1;
@@ -187,11 +232,14 @@ void loop(){
         digitalWrite(drogue_1, HIGH);
         delay(charge_delay);
         digitalWrite(drogue_1, LOW);
+        writeSD("Primary Drogue Deployed");
+
         delay(backup_delay);
 
         digitalWrite(drogue_2, HIGH);
         delay(charge_delay);
         digitalWrite(drogue_2, LOW);
+        writeSD("Secondary Drogue Deployed");
 
         // HWSERIAL.println("Drogue Deployed \n\n\n\n\n\n\n\n\n\n\n\n");
     } else if (round(pre_alt) - round(Alt) > 0) {
@@ -200,18 +248,21 @@ void loop(){
         fall_counter = 0;
     }
   } else if (launch_flag == true && main_flag == false && drogue_flag == true) {
-    if (Alt < 1000) {
+    if (Alt < (startAlt+304.8)) {
       main_flag = true;
       stage = 3;
 
       digitalWrite(main_1, HIGH);
       delay(charge_delay);
       digitalWrite(main_1, LOW);
-      
+      writeSD("Primary Main Deployed");
+
       delay(backup_delay);
+
       digitalWrite(main_2, HIGH);
       delay(charge_delay);
       digitalWrite(main_2, LOW);
+      writeSD("Secondary Main Deployed");
       
       // HWSERIAL.println("Main Deployed \n\n\n\n\n\n\n");
     }
@@ -220,27 +271,34 @@ void loop(){
   pre_alt = Alt;
 
 // Print combined data
-  Serial.println(String(Temp) + "," + String(Press) + "," + String(Alt) + "," +
+
+  String dataString = String(Temp) + "," + String(Press) + "," + String(Alt) + "," +
                 String(Accel_x2) + "," + String(Accel_y2) + "," + String(Accel_z2) + "," +
                 String(Accel_x) + "," + String(Accel_y) + "," + String(Accel_z) + "," +
                 String(Gyro_x) + "," + String(Gyro_y) + "," + String(Gyro_z) + "," +
                 String(Mag_x) + "," + String(Mag_y) + "," + String(Mag_z) + "," +
                 String(Quaternion_1) + "," + String(Quaternion_2) + "," + 
                 String(Quaternion_3) + "," + String(Quaternion_4) + "," +
-                String(stage) + "," + String(launch_flag) + "," + String(drogue_flag) + "," +
-                String(main_flag)
-              ); 
+                String(stage);
+
+  Serial.println(dataString); 
               
 
-  HWSERIAL.println(String(Temp) + "," + String(Press) + "," + String(Alt) + "," +
-              String(Accel_x2) + "," + String(Accel_y2) + "," + String(Accel_z2) + "," +
-              String(Accel_x) + "," + String(Accel_y) + "," + String(Accel_z) + "," +
-              String(Gyro_x) + "," + String(Gyro_y) + "," + String(Gyro_z) + "," +
-              String(Mag_x) + "," + String(Mag_y) + "," + String(Mag_z) + "," +
-              String(Quaternion_1) + "," + String(Quaternion_2) + "," + 
-              String(Quaternion_3) + "," + String(Quaternion_4) + "," +
-              String(stage) + "," + String(launch_flag) + "," + String(drogue_flag) + "," +
-              String(main_flag)
-            );  
+  HWSERIAL.println(dataString);
+  
+  writeSD(dataString);
+
+
+  if(Serial.available() > 0) {
+    String receivedData = Serial.readStringUntil('\n');
+    receivedData.trim();
+    if(receivedData == "ON"){
+      Serial.println("Camera on");
+      digitalWrite(camera1,HIGH);
+      digitalWrite(camera2,HIGH);
+    }else if (receivedData == "OFF"){
+      digitalWrite(camera1, LOW);
+      digitalWrite(camera2, LOW);
+    }}
   
   }
