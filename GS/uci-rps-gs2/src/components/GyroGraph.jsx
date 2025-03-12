@@ -1,74 +1,43 @@
-import React from 'react'
-import HighchartsReact from 'highcharts-react-official'
-import Highcharts from 'highcharts'
+import React, { useState, useEffect } from 'react';
+import HighchartsReact from 'highcharts-react-official';
+import Highcharts from 'highcharts';
 
-export default class Container extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            chartOptions: {
-                title: {
-                    text: 'Angular Speed vs. Time'
-                },
-                xAxis: {
-                    title: {
-                        text: 'Time (sec)'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Angular Speed (rad/s)'
-                    }
-                },
-                series: [
-                    {
-                        name: 'X-Axis',
-                        data: []
-                    },
-                    {
-                        name: 'Y-Axis',
-                        data: []
-                    },
-                    {
-                        name: 'Z-Axis',
-                        data: []
-                    }
-                ]
-            }
-        }
-    }
+const GyroGraph = ({ timeData = [], gyroDataX = [], gyroDataY = [], gyroDataZ = [] }) => {
+  const [chartOptions, setChartOptions] = useState({
+    title: { text: 'Angular Speed vs. Time' },
+    xAxis: { title: { text: 'Time (sec)' } },
+    yAxis: { title: { text: 'Angular Speed (rad/s)' } },
+    series: [
+      { name: 'X-Axis', data: [] },
+      { name: 'Y-Axis', data: [] },
+      { name: 'Z-Axis', data: [] }
+    ]
+  });
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.gyroDataX !== this.props.gyroDataX) {
-            this.setState(prevState => ({
-                chartOptions: {
-                    ...prevState.chartOptions,
-                    series: [
-                        {
-                            ...prevState.chartOptions.series[0],
-                            data: this.props.gyroDataX
-                        },
-                        {
-                            ...prevState.chartOptions.series[1],
-                            data: this.props.gyroDataY
-                        },
-                        {
-                            ...prevState.chartOptions.series[2],
-                            data: this.props.gyroDataZ
-                        }
-                    ]
-                }
-            }));
-        }
-    }
+  useEffect(() => {
+    if (timeData.length === gyroDataX.length) {
+      const formattedDataX = timeData.map((t, index) => [t, gyroDataX[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [t, gyroDataY[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [t, gyroDataZ[index] ?? 0]);
 
-    render() {
-        return (
-            <HighchartsReact
-            containerProps={{ style: {height: "270px" } }} 
-                highcharts={Highcharts}
-                options={this.state.chartOptions}
-            />
-        );
+      setChartOptions(prevOptions => ({
+        ...prevOptions,
+        series: [
+          { ...prevOptions.series[0], data: formattedDataX },
+          { ...prevOptions.series[1], data: formattedDataY },
+          { ...prevOptions.series[2], data: formattedDataZ }
+        ]
+      }));
     }
-}
+  }, [timeData, gyroDataX, gyroDataY, gyroDataZ]);
+
+  return (
+    <HighchartsReact
+      containerProps={{ style: { height: "270px" } }}
+      highcharts={Highcharts}
+      options={chartOptions}
+    />
+  );
+};
+
+export default GyroGraph;

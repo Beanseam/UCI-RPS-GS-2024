@@ -1,133 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
 
-export default class Container extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            chartOptionsX: {
-                title: {
-                    text: 'Magnetic Field (X-Axis) vs. Time'
-                },
-                xAxis: {
-                    title: {
-                        text: 'Time (sec)'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Magnetic Field (uTesla)'
-                    }
-                },
-                series: [
-                    {
-                        name: 'X-Axis',
-                        data: []
-                    }
-                ]
-            },
-            chartOptionsY: {
-                title: {
-                    text: 'Magnetic Field (Y-Axis) vs. Time'
-                },
-                xAxis: {
-                    title: {
-                        text: 'Time (sec)'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Magnetic Field (uTesla)'
-                    }
-                },
-                series: [
-                    {
-                        name: 'Y-Axis',
-                        data: []
-                    }
-                ]
-            },
-            chartOptionsZ: {
-                title: {
-                    text: 'Magnetic Field (Z-Axis) vs. Time'
-                },
-                xAxis: {
-                    title: {
-                        text: 'Time (sec)'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Magnetic Field (uTesla)'
-                    }
-                },
-                series: [
-                    {
-                        name: 'Z-Axis',
-                        data: []
-                    }
-                ]
-            }
-        };
-    }
+const MagneticFieldGraph = ({ timeData = [], magDataX = [], magDataY = [], magDataZ = [] }) => {
+  const [chartOptionsX, setChartOptionsX] = useState({
+    title: { text: 'Magnetic Field (X-Axis) vs. Time' },
+    xAxis: { title: { text: 'Time (sec)' } },
+    yAxis: { title: { text: 'Magnetic Field (uTesla)' } },
+    series: [{ name: 'X-Axis', data: [] }]
+  });
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.magDataX !== this.props.magDataX || 
-            prevProps.magDataY !== this.props.magDataY || 
-            prevProps.magDataZ !== this.props.magDataZ) {
-            
-            this.setState(prevState => ({
-                chartOptionsX: {
-                    ...prevState.chartOptionsX,
-                    series: [
-                        {
-                            ...prevState.chartOptionsX.series[0],
-                            data: this.props.magDataX
-                        }
-                    ]
-                },
-                chartOptionsY: {
-                    ...prevState.chartOptionsY,
-                    series: [
-                        {
-                            ...prevState.chartOptionsY.series[0],
-                            data: this.props.magDataY
-                        }
-                    ]
-                },
-                chartOptionsZ: {
-                    ...prevState.chartOptionsZ,
-                    series: [
-                        {
-                            ...prevState.chartOptionsZ.series[0],
-                            data: this.props.magDataZ
-                        }
-                    ]
-                }
-            }));
-        }
-    }
+  const [chartOptionsY, setChartOptionsY] = useState({
+    title: { text: 'Magnetic Field (Y-Axis) vs. Time' },
+    xAxis: { title: { text: 'Time (sec)' } },
+    yAxis: { title: { text: 'Magnetic Field (uTesla)' } },
+    series: [{ name: 'Y-Axis', data: [] }]
+  });
 
-    render() {
-        return (
-            <div>
-                <HighchartsReact
-                containerProps={{ style: {height: "180px" } }}
-                    highcharts={Highcharts}
-                    options={this.state.chartOptionsX}
-                />
-                <HighchartsReact
-                containerProps={{ style: {height: "180px" } }}
-                    highcharts={Highcharts}
-                    options={this.state.chartOptionsY}
-                />
-                <HighchartsReact
-                containerProps={{ style: {height: "180px" } }}
-                    highcharts={Highcharts}
-                    options={this.state.chartOptionsZ}
-                />
-            </div>
-        );
+  const [chartOptionsZ, setChartOptionsZ] = useState({
+    title: { text: 'Magnetic Field (Z-Axis) vs. Time' },
+    xAxis: { title: { text: 'Time (sec)' } },
+    yAxis: { title: { text: 'Magnetic Field (uTesla)' } },
+    series: [{ name: 'Z-Axis', data: [] }]
+  });
+
+  useEffect(() => {
+    if (timeData.length === magDataX.length) {
+      const formattedDataX = timeData.map((t, index) => [t, magDataX[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [t, magDataY[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [t, magDataZ[index] ?? 0]);
+
+      setChartOptionsX(prevOptions => ({
+        ...prevOptions,
+        series: [{ ...prevOptions.series[0], data: formattedDataX }]
+      }));
+
+      setChartOptionsY(prevOptions => ({
+        ...prevOptions,
+        series: [{ ...prevOptions.series[0], data: formattedDataY }]
+      }));
+
+      setChartOptionsZ(prevOptions => ({
+        ...prevOptions,
+        series: [{ ...prevOptions.series[0], data: formattedDataZ }]
+      }));
     }
-}
+  }, [timeData, magDataX, magDataY, magDataZ]);
+
+  return (
+    <div>
+      <HighchartsReact 
+        containerProps={{ style: { height: "180px" } }} 
+        highcharts={Highcharts} 
+        options={chartOptionsX} 
+      />
+      <HighchartsReact 
+        containerProps={{ style: { height: "180px" } }} 
+        highcharts={Highcharts} 
+        options={chartOptionsY} 
+      />
+      <HighchartsReact 
+        containerProps={{ style: { height: "180px" } }} 
+        highcharts={Highcharts} 
+        options={chartOptionsZ} 
+      />
+    </div>
+  );
+};
+
+export default MagneticFieldGraph;
