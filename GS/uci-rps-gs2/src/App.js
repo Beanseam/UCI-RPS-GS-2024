@@ -122,7 +122,7 @@ function App() {
  
     fetchData();
  
-    const intervalId = setInterval(fetchData, 5000);
+    const intervalId = setInterval(fetchData, 500);
  
     return () => clearInterval(intervalId);
   }, [sensorData]);
@@ -130,17 +130,17 @@ function App() {
   return (
       <body className='bg-blue-900 font-serif'>
         <header class="page-title">
-          <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg h-1/15">
+          {/* <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg h-1/15">
             <p class="alignleft"><button class="reset-button" type="button" onClick={() => resetData(sensorData)}>Reset Data</button>
             <button class="save-button" type="button" onClick={() => saveData(sensorData)}>Save Data</button></p>
             <h1 style={{ fontSize: '2.5em', width: "33.33333%", textAlign:"center", float: "left"}}>UCI Rocket Project Solids - Ground Station</h1>
             <p class="alignright"><States stateData={sensorData['state']} /></p>
-          </div>
+          </div> */}
         </header>
  
         <main className="px-10 bg-blue-900 p-0 m-0 mt-16 h-3/4 w-full">
-          <div className="flex flex-cols-2 bg-blue-900 p-0 m-0" >
-            <div className="w-1/2 bg-blue-900 p-0 m-0 h-3/4">
+          <div>
+            {/* <div className="w-1/2 bg-blue-900 p-0 m-0 h-3/4"> */}
               <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
               <GyroGraph
                 timeData={sensorData['time']}
@@ -148,9 +148,9 @@ function App() {
                 gyroDataY = {sensorData['gyro_y']}
                 gyroDataZ = {sensorData['gyro_z']}
               />          
-            </div>
+            {/* </div> */}
      
-            <div className='flex flex-col bg-blue-900 p-0 m-1px w-1/2 h-3/4'>
+            {/* <div className='flex flex-col bg-blue-900 p-0 m-1px w-1/2 h-3/4'> */}
               <AcelGraph
                 timeData={sensorData['time']}
                 acelDataX = {sensorData['acc_x']}
@@ -163,7 +163,7 @@ function App() {
                 acelDataY2 = {sensorData['acc_y_2']}
                 acelDataZ2 = {sensorData['acc_z_2']}
               />
-            </div>
+            {/* </div> */}
             <div className='flex flex-col bg-blue-900 p-0 m-0 w-1/2 h-3/4'>
               <MagGraph
                   magDataX = {sensorData['mag_x']}
