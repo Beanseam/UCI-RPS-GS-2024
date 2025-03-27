@@ -6,7 +6,9 @@
 #include "BPM390_Module.h"
 #include "LIS3DH_Module.h"
 #include "LSM9DS1_Module.h"
-#include <MadgwickAHRS.h>
+// #include <MadgwickAHRS.h>
+#include <Adafruit_Sensor_Calibration.h>
+#include <Adafruit_AHRS.h>
 
 #define main_1 11     // main primary
 #define main_2 10    // main secondary     
@@ -28,7 +30,8 @@ LIS3DH_Module LIS3DHModule(lis);
 Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
 LSM9DS1_Module LSM9DS1Module(lsm);
 
-Madgwick filter;
+// Madgwick filter;
+Adafruit_Mahony algo;
 
 // Declare global variables
 float Temp = 0;
@@ -122,7 +125,8 @@ void setup() {
     Serial.println("Could not find a valid LSM9DS1 sensor");
   }
 
-  filter.begin(200); // Initialize Madwick at 200Hz
+  // filter.begin(200); // Initialize Madwick at 200Hz
+  algo.begin(200);
 
   String dataString = "Temp,Press,Alt,Accel_x2,Accel_y2,Accel_z2,Accel_x,Accel_y,Accel_z,Gyro_x,Gyro_y,Gyro_z,Mag_x,Mag_y,Mag_z,Quaternion_1,Quaternion_2,Quaternion_3,Quaternion_4,Stage";
   writeSD(dataString);
@@ -175,8 +179,6 @@ void loop(){
   if (LSM9DS1_data.accel_x != -999 && LSM9DS1_data.accel_y != -999 && LSM9DS1_data.accel_z != -999 &&
       LSM9DS1_data.gyro_x != -999 && LSM9DS1_data.gyro_y != -999 && LSM9DS1_data.gyro_z != -999 &&
       LSM9DS1_data.mag_x != -999 && LSM9DS1_data.mag_y != -999 && LSM9DS1_data.mag_z != -999){
-        filter.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
-
         
         Accel_x = LSM9DS1_data.accel_x;
         Accel_y = LSM9DS1_data.accel_y;
@@ -190,14 +192,21 @@ void loop(){
         Mag_y = LSM9DS1_data.mag_y;
         Mag_z = LSM9DS1_data.mag_z;
 
-      // float qw, qx, qy, qz;
-      // filter.getQuaternion(&qw, &qx, &qy, &qz);
-      //   Quaternion_1 = qw;
-      //   Quaternion_2 = qx;
-      //   Quaternion_3 = qy;
-      //   Quaternion_4 = qz;
+        // filter.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
+        algo.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
 
-        Quaternion_1 = filter.getRoll();
+        // Quaternion_1 = filter.q0;  // w
+        // Quaternion_2 = filter.q1;  // x
+        // Quaternion_3 = filter.q2;  // y
+        // Quaternion_4 = filter.q3;  // z
+        float qw, qx, qy, qz;
+        algo.getQuaternion(&qw, &qx, &qy, &qz);
+
+        // Store quaternion values
+        Quaternion_1 = qw;
+        Quaternion_2 = qx;
+        Quaternion_3 = qy;
+        Quaternion_4 = qz;
 
       }
   else {
@@ -297,6 +306,7 @@ void loop(){
       digitalWrite(camera1,HIGH);
       digitalWrite(camera2,HIGH);
     }else if (receivedData == "OFF"){
+      Serial.println("Camera off");
       digitalWrite(camera1, LOW);
       digitalWrite(camera2, LOW);
     }}

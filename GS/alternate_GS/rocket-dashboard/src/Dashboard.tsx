@@ -5,10 +5,15 @@ import MagGraph from "./components/MagGraph";
 import AltitudeGraph from "./components/AltitudeGraph";
 import PressureGraph from "./components/PressureGraph";
 import TempGraph from "./components/TempGraph";
-import './App.css';
+import Alert from "./components/Alert";
+import Orientation from "./components/Orientation";
 
+// import SendCommandButton from "./components/SendCommandButton";
+import './App.css';
+import { SendCommandButton } from "./components/SendCommandButton";
 
 const Dashboard = () => {
+    
   return (
     // <div className="p-4">
     //   <h1 className="text-2xl font-bold mb-4">Rocket Dashboard</h1>
@@ -53,6 +58,10 @@ const Dashboard = () => {
                 <TempGraph />
             </div>
         </div> */}
+
+        <Alert />
+        <SendCommandButton />
+        <Orientation />
     </div>
   );
 };

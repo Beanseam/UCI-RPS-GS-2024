@@ -12,6 +12,8 @@ BAUD_RATE = 57600
 HOST = '0.0.0.0'  
 PORT = 8765
 
+# Global variables
+ser = None
 connected_clients = set()
 
 def port_selection():
@@ -40,6 +42,7 @@ def port_selection():
 def open_serial(port: str):
     """Function to open a serial connection to the specified port"""
     
+    global ser
     try:
         ser = serial.Serial(port, BAUD_RATE, timeout=1)
         logging.info(f"Serial port {port} opened successfully.")
@@ -48,12 +51,13 @@ def open_serial(port: str):
         logging.error(f"Error opening serial connection: {e}")
         return None
         
-async def read_serial(ser: serial.Serial, broadcast_queue: asyncio.Queue):
+async def read_serial(broadcast_queue: asyncio.Queue):
     """Function to read data from the serial connection and put it in a queue"""
     
+    global ser
     while True:
         try:
-            if ser.in_waiting > 0:
+            if ser and ser.is_open and ser.in_waiting > 0:
                 data = ser.readline().decode().strip()
                 if data:
                     logging.info(f"Serial Data: {data}")
@@ -65,7 +69,7 @@ async def read_serial(ser: serial.Serial, broadcast_queue: asyncio.Queue):
         
         await asyncio.sleep(0.01)
                     
-async def broadcast(broadcast_queue: asyncio.Queue, connected_clients: set):
+async def broadcast(broadcast_queue: asyncio.Queue):
     """Function to send data to all connected websockets"""
     
     while True:
@@ -80,6 +84,7 @@ async def broadcast(broadcast_queue: asyncio.Queue, connected_clients: set):
 async def handle_client(websocket):
     """Websocket handler function"""
     
+    global ser
     try:
         # Add more detailed logging
         logging.info(f"Client connected: {websocket.remote_address}")
@@ -88,6 +93,17 @@ async def handle_client(websocket):
         async with websocket:
             connected_clients.add(websocket)
             
+            async for message in websocket:
+                try:
+                    logging.info(f"Received message: {message}")
+                    if ser and ser.is_open:
+                        ser.write(f"{message}\n".encode())
+                        ser.flush()  # Ensure message is sent immediately
+                    else:
+                        logging.warning("Serial port not open or not initialized")
+                except Exception as e:
+                    logging.error(f"Error handling message: {e}")
+                         
             # Keep the connection open and listen for any messages
             await websocket.wait_closed()
     
@@ -107,7 +123,7 @@ async def main():
     
     # Select and open serial port
     port = port_selection()
-    ser = open_serial(port)
+    open_serial(port)
     
     if ser is None:
         logging.error("Failed to open serial port. Exiting.")
@@ -119,7 +135,6 @@ async def main():
             handle_client, 
             host=HOST, 
             port=PORT,
-            # Add these parameters to improve WebSocket handling
             ping_interval=20,
             ping_timeout=20
         )
@@ -127,8 +142,8 @@ async def main():
         
         # Run serial reading and broadcasting concurrently
         await asyncio.gather(
-            read_serial(ser, broadcast_queue),
-            broadcast(broadcast_queue, connected_clients),
+            read_serial(broadcast_queue),
+            broadcast(broadcast_queue),
             server.wait_closed()
         )
     

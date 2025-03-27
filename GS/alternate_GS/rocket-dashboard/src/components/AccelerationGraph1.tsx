@@ -38,7 +38,7 @@ const AccelerationGraph1 = () => {
             <h2 className="text-xl font-bold">Accelerometer1 (m/s²)</h2>
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="4 5" />
+                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="time" tickFormatter={(t) => new Date(t).toLocaleTimeString()} />
                     <YAxis/>
                     <Tooltip />
