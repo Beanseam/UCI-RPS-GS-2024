@@ -79,4 +79,3 @@ export const SendCommandButton = () => {
   );
 };
 
-// export default SendCommandButton;
