@@ -130,7 +130,6 @@ void setup() {
 
   String dataString = "Temp,Press,Alt,Accel_x2,Accel_y2,Accel_z2,Accel_x,Accel_y,Accel_z,Gyro_x,Gyro_y,Gyro_z,Mag_x,Mag_y,Mag_z,Quaternion_1,Quaternion_2,Quaternion_3,Quaternion_4,Stage";
   writeSD(dataString);
-  tone(buzzer, 3000, 5000);
 
   for (int i = 0; i <= 10; i++){
      BPM_SensorData BPM_data = bmpModule.readData();
@@ -144,14 +143,13 @@ void setup() {
 
   // Serial.println(startAlt);
   delay(1000);
-
+  tone(buzzer, 3100);
 }
   
 
 void loop(){
-// BPM390 Data
+  // BPM390 Data
 
-  // digitalWrite(main_1, HIGH);
   BPM_SensorData BPM_data = bmpModule.readData();
   if (BPM_data.temperature != -999) {
     Temp = BPM_data.temperature;
@@ -166,8 +164,8 @@ void loop(){
   LIS3DH_SensorData LIS3DH_data = LIS3DHModule.readData();
   if (LIS3DH_data.accel_x != -999 && LIS3DH_data.accel_y != -999 && LIS3DH_data.accel_z != -999){
     Accel_x2 = LIS3DH_data.accel_x;
-    Accel_y2 = LIS3DH_data.accel_y;
-    Accel_z2 = LIS3DH_data.accel_z;
+    Accel_y2 = -LIS3DH_data.accel_z;
+    Accel_z2 = -LIS3DH_data.accel_y;
   }
   else {
     Serial.println("Failed to get LIS3DH data");
@@ -180,25 +178,21 @@ void loop(){
       LSM9DS1_data.gyro_x != -999 && LSM9DS1_data.gyro_y != -999 && LSM9DS1_data.gyro_z != -999 &&
       LSM9DS1_data.mag_x != -999 && LSM9DS1_data.mag_y != -999 && LSM9DS1_data.mag_z != -999){
         
-        Accel_x = LSM9DS1_data.accel_x;
-        Accel_y = LSM9DS1_data.accel_y;
-        Accel_z = LSM9DS1_data.accel_z;
+        Accel_x = -LSM9DS1_data.accel_x;
+        Accel_y = -LSM9DS1_data.accel_z;
+        Accel_z = -LSM9DS1_data.accel_y;
 
-        Gyro_x = LSM9DS1_data.gyro_x;
-        Gyro_y = LSM9DS1_data.gyro_y;
-        Gyro_z = LSM9DS1_data.gyro_z;
+        Gyro_x = -LSM9DS1_data.gyro_x;
+        Gyro_y = -LSM9DS1_data.gyro_z;
+        Gyro_z = -LSM9DS1_data.gyro_y;
 
-        Mag_x = LSM9DS1_data.mag_x;
-        Mag_y = LSM9DS1_data.mag_y;
-        Mag_z = LSM9DS1_data.mag_z;
+        Mag_x = -LSM9DS1_data.mag_x;
+        Mag_y = -LSM9DS1_data.mag_z;
+        Mag_z = -LSM9DS1_data.mag_y;
 
         // filter.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
         algo.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
 
-        // Quaternion_1 = filter.q0;  // w
-        // Quaternion_2 = filter.q1;  // x
-        // Quaternion_3 = filter.q2;  // y
-        // Quaternion_4 = filter.q3;  // z
         float qw, qx, qy, qz;
         algo.getQuaternion(&qw, &qx, &qy, &qz);
 
@@ -298,17 +292,39 @@ void loop(){
   writeSD(dataString);
 
 
-  if(Serial.available() > 0) {
-    String receivedData = Serial.readStringUntil('\n');
+  if(HWSERIAL.available() > 0) {
+    String receivedData = HWSERIAL.readStringUntil('\n');
     receivedData.trim();
     if(receivedData == "ON"){
-      Serial.println("Camera on");
+      HWSERIAL.println("TEENSY Camera on");
       digitalWrite(camera1,HIGH);
       digitalWrite(camera2,HIGH);
     }else if (receivedData == "OFF"){
-      Serial.println("Camera off");
+      HWSERIAL.println("TEENSY Camera off");
       digitalWrite(camera1, LOW);
       digitalWrite(camera2, LOW);
-    }}
+    }else if (receivedData == "Fire Main P"){
+      HWSERIAL.println("TEENSY Fired Main Primary");
+      digitalWrite(main_1, HIGH);
+      delay(charge_delay);
+      digitalWrite(main_1, LOW);
+
+    } else if (receivedData == "Fire Main S"){
+      HWSERIAL.println("TEENSY Fired Main Secondary");
+      digitalWrite(main_2, HIGH);
+      delay(charge_delay);
+      digitalWrite(main_2, LOW);
+    } else if (receivedData == "Fire Drogue P"){
+      HWSERIAL.println("TEENSY Fired Drogue Primary");
+      digitalWrite(drogue_1, HIGH);
+      delay(charge_delay);
+      digitalWrite(drogue_1, LOW);
+    } else if (receivedData == "Fire Drogue S"){
+      HWSERIAL.println("TEENSY Fired Drogue Secondary");
+      digitalWrite(drogue_2, HIGH);
+      delay(charge_delay);
+      digitalWrite(drogue_2, LOW); 
+
+    }
   
-  }
+  } }

@@ -6,7 +6,9 @@ import AltitudeGraph from "./components/AltitudeGraph";
 import PressureGraph from "./components/PressureGraph";
 import TempGraph from "./components/TempGraph";
 import Alert from "./components/Alert";
-import Orientation from "./components/Orientation";
+import { BPTesting } from "./components/BPTesting";
+
+// import Orientation from "./components/Orientation";
 
 // import SendCommandButton from "./components/SendCommandButton";
 import './App.css';
@@ -61,7 +63,8 @@ const Dashboard = () => {
 
         <Alert />
         <SendCommandButton />
-        <Orientation />
+        {/* <Orientation /> */}
+        <BPTesting />
     </div>
   );
 };
