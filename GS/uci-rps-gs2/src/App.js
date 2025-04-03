@@ -103,9 +103,10 @@ function App() {
             mag_y: [...sensorData.mag_y, parseInt(dataString['mag']['y'])],
             mag_z: [...sensorData.mag_z, parseInt(dataString['mag']['z'])],
             quat: {
+              // swapped y and z because the model starts horizontal along Z axis
               x: parseFloat(dataString['quaternion']['1']),
-              y: parseFloat(dataString['quaternion']['2']),
-              z: parseFloat(dataString['quaternion']['3']),
+              y: parseFloat(dataString['quaternion']['3']),
+              z: parseFloat(dataString['quaternion']['2']),
               w: parseFloat(dataString['quaternion']['4'])
             },
             state: [...sensorData.state, parseInt(dataString['state'])],
@@ -126,19 +127,40 @@ function App() {
  
     return () => clearInterval(intervalId);
   }, [sensorData]);
- 
+  //reset function 
+  const resetData = () => {
+    setSensorData({
+      temp: [],
+      pres: [],
+      alt: [],
+      acc_x_2: [],
+      acc_y_2: [],
+      acc_z_2: [],
+      acc_x: [],
+      acc_y: [],
+      acc_z: [],
+      gyro_x: [],
+      gyro_y: [],
+      gyro_z: [],
+      mag_x: [],
+      mag_y: [],
+      mag_z: [],
+      state: [],
+      time: []
+    });
+  };
   return (
       <body className='bg-blue-900 font-serif'>
         <header class="page-title">
-          {/* <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg h-1/15">
-            <p class="alignleft"><button class="reset-button" type="button" onClick={() => resetData(sensorData)}>Reset Data</button>
-            <button class="save-button" type="button" onClick={() => saveData(sensorData)}>Save Data</button></p>
+          <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg h-1/15">
+            <p class="alignleft"><button class="reset-button" type="button" onClick={() => resetData(sensorData)}>Reset Data</button></p>
+            {/* <button class="save-button" type="button" onClick={() => saveData(sensorData)}>Save Data</button></p> */}
             <h1 style={{ fontSize: '2.5em', width: "33.33333%", textAlign:"center", float: "left"}}>UCI Rocket Project Solids - Ground Station</h1>
             <p class="alignright"><States stateData={sensorData['state']} /></p>
-          </div> */}
+          </div>
         </header>
  
-        <main className="px-10 bg-blue-900 p-0 m-0 mt-16 h-3/4 w-full">
+        <main /*</body>className="px-10 bg-blue-900 p-0 m-0 mt-16 h-3/4 w-full"*/>
           <div>
             {/* <div className="w-1/2 bg-blue-900 p-0 m-0 h-3/4"> */}
               <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
@@ -164,7 +186,7 @@ function App() {
                 acelDataZ2 = {sensorData['acc_z_2']}
               />
             {/* </div> */}
-            <div className='flex flex-col bg-blue-900 p-0 m-0 w-1/2 h-3/4'>
+            <div /*className='flex flex-col bg-blue-900 p-0 m-0 w-1/2 h-3/4'*/>
               <MagGraph
                   magDataX = {sensorData['mag_x']}
                   magDataY = {sensorData['mag_y']}
@@ -180,6 +202,7 @@ function App() {
  
         <footer className="flex flex-row justify-between items-center bg-gray-800 text-white p-4">
           <div>
+            {/* Z and Y axes are swapped due to rocket being initially horizontal */}
             <Model quaternion={sensorData?.['quat'] ?? { x: 0, y: 0, z: 0, w: 1 }} />
           </div>
           <div className="text-center pr-10">
