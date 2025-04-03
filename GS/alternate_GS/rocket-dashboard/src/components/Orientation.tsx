@@ -1,79 +1,80 @@
-import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import React, { useEffect, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { GLTFLoader } from "three-stdlib";
+import * as THREE from "three";
+
+// Rocket model that accepts quaternion for rotation
+function Rocket({ quaternion }) {
+  const modelRef = useRef();
+  const quaternionRef = useRef(new THREE.Quaternion());
+  const [model, setModel] = useState(null);
+
+  useEffect(() => {
+    quaternionRef.current.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+  }, [quaternion]);
+
+  useEffect(() => {
+    const loader = new GLTFLoader();
+    loader.load("/rocket.glb", (gltf) => {
+      if (gltf.scene) {
+        setModel(gltf.scene);
+        gltf.scene.scale.set(0.2, 0.2, 0.15);
+      }
+    });
+  }, []);
+
+  useFrame(() => {
+    if (model) {
+      const initialRotation = new THREE.Quaternion();
+      initialRotation.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Y/Z axis adjustment
+      model.quaternion.copy(initialRotation).multiply(quaternionRef.current);
+    }
+  });
+
+  if (!model) return null;
+
+  return <primitive object={model} />;
+}
 
 const Orientation = ({ websocket }) => {
-    const canvasRef = useRef(null);
-    const [scene, setScene] = useState(null);
-    const [camera, setCamera] = useState(null);
-    const [renderer, setRenderer] = useState(null);
-    const [rocketMesh, setRocketMesh] = useState(null);
+  const [quaternion, setQuaternion] = useState({ x: 0, y: 0, z: 0, w: 1 });
 
-    useEffect(() => {
-        // Initialize Three.js scene
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+  useEffect(() => {
+    if (!websocket) return;
 
-        // Create a simple rocket model (cone)
-        const geometry = new THREE.ConeGeometry(1, 4, 32);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const rocketMesh = new THREE.Mesh(geometry, material);
-        scene.add(rocketMesh);
+    const handleData = (data) => {
+      const sensorValues = data.split(",").map(parseFloat);
 
-        camera.position.z = 10;
+      if (sensorValues.length < 19) {
+        console.error("Invalid data received:", data);
+        return;
+      }
 
-        // Set state
-        setScene(scene);
-        setCamera(camera);
-        setRenderer(renderer);
-        setRocketMesh(rocketMesh);
+      const q1 = sensorValues[15]; // w
+      const q2 = sensorValues[16]; // x
+      const q3 = sensorValues[17]; // y
+      const q4 = sensorValues[18]; // z
 
-        // Animation loop
-        const animate = () => {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        };
-        animate();
+      console.log("Quaternion Received:", q1, q2, q3, q4);
 
-        return () => {
-            renderer.dispose();
-        };
-    }, []);
+      setQuaternion({ x: q2, y: q3, z: q4, w: q1 });
+    };
 
-    useEffect(() => {
-        if (!websocket) return;
+    websocket.addListener(handleData);
 
-        websocket.addListener((data) => {
-            // Split the incoming string data into an array
-            const sensorValues = data.split(",").map(parseFloat);
+    return () => {
+      websocket.removeListener(handleData); // clean up
+    };
+  }, [websocket]);
 
-            // Ensure there are enough values
-            if (sensorValues.length < 19) {
-                console.error("Invalid data received:", data);
-                return;
-            }
-
-            // Extract quaternion values from the correct positions
-            const q1 = sensorValues[15]; // Quaternion_1
-            const q2 = sensorValues[16]; // Quaternion_2
-            const q3 = sensorValues[17]; // Quaternion_3
-            const q4 = sensorValues[18]; // Quaternion_4
-
-            console.log("Quaternion Received:", q1, q2, q3, q4);
-
-            // Create a quaternion from the received data
-            const quaternion = new THREE.Quaternion(q2, q3, q4, q1); // Adjusting to Three.js format
-
-            // Apply the quaternion rotation to the rocket model
-            if (rocketMesh) {
-                rocketMesh.setRotationFromQuaternion(quaternion);
-            }
-        });
-    }, [websocket, rocketMesh]);
-
-    return <canvas ref={canvasRef}></canvas>;
+  return (
+    <Canvas style={{ width: '100vw', height: '100vh' }} camera={{ position: [0, 0, 10], fov: 75 }}>
+      <ambientLight intensity={1} />
+      <directionalLight position={[5, 5, 5]} />
+      <axesHelper args={[5]} />
+      <Rocket quaternion={quaternion} />
+    </Canvas>
+  );
 };
 
 export default Orientation;
