@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 node_modules/
 ./GS/uci-rps-gs2/src.__pycache__
+=======
+GS/.DS_Store
+>>>>>>> 5c59d8bb5a2d3236b63ea502a7f3dc59c74272c0
