@@ -1,5 +1,6 @@
 import csv
 import datetime
+import os
 def flatten_data(y):
     out = {}
 

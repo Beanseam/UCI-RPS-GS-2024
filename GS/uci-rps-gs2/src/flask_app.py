@@ -1,3 +1,4 @@
+from time import sleep
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import serial
@@ -8,23 +9,24 @@ import datetime
 import json
 import csv_log
 import serial.tools.list_ports
-
-SERIAL_PORT = 'COM6'
+import os
+ 
+SERIAL_PORT = 'COM4'
 #/dev/tty.usbserial-B000J0YT for MAC
 SERIAL_BAUDRATE = 57600
 sensor_data_lock = threading.Lock()
-
+ 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
-
+ 
 sensor_data = {}
-
+ 
 def select_port():
     ports = serial.tools.list_ports.comports()
     if not ports:
         print("No serial ports found. Exiting.")
         sys.exit(1)
-
+ 
     print("Available ports:")
     for i, port in enumerate(ports):
         print(f"{i}: {port}")
@@ -32,8 +34,8 @@ def select_port():
         print(f"   Description: {port.description}")
         print(f"   Hardware ID: {port.hwid}")
         print("-" * 40)
-
-
+ 
+ 
     while True:
         try:
             port_index = int(input("Select a port: "))
@@ -42,76 +44,88 @@ def select_port():
             print("Invalid port index.")
         except ValueError:
             print("Please enter a valid number.")
-
-        
-
+ 
+       
+ 
 def read_serial(serial_port, baudrate):
     global sensor_data
     global data
     print('Reading serial data...')
-
-    try: 
+ 
+    try:
         ser = serial.Serial(serial_port, baudrate) # for Windows
     except serial.SerialException as e:
         print(f"read_serial Error: {e}")
         #print(f"Error: {e}")
         sys.exit(1)
-
+ 
     try:
         while True:
+           
             line = ser.readline().decode("utf-8").strip()
+            #print(line)
             data_list = line.split(',')
-            if len(data_list) == 3:
-                with sensor_data_lock:
-                    sensor_data['temperature'] = data_list[0]
-                    sensor_data['press'] = data_list[1]
-                    sensor_data['altitude'] = data_list[2]
-                    sensor_data['acceleration'] = {
-                            'x2': data_list[3],
-                            'y2': data_list[4],
-                            'z2': data_list[5],
-                            'x': data_list[6],
-                            'y': data_list[7],
-                            'z': data_list[8]
-                    }
-                    sensor_data['mag'] = {
-                            'x': data_list[9],
-                            'y': data_list[10],
-                            'z': data_list[11]
-                    }
-                    sensor_data['quaternion'] = {
-                            '1': data_list[12],
-                            '2': data_list[13],
-                            '3': data_list[14],
-                            '4': data_list[15]
-                    }
-                    sensor_data['timestamp'] = datetime.datetime.now()
-            csv.write_to_csv(csv.flatten_data(sensor_data))
-            print(sensor_data['acceleration'])
-            
+            with sensor_data_lock:
+                if(len(data_list) < 20):
+                    continue
+                sensor_data['temperature'] = data_list[0]
+                sensor_data['press'] = data_list[1]
+                sensor_data['altitude'] = data_list[2]
+                sensor_data['acceleration'] = {
+                        'x2': data_list[3],
+                        'y2': data_list[4],
+                        'z2': data_list[5],
+                        'x': data_list[6],
+                        'y': data_list[7],
+                        'z': data_list[8]
+                }
+                sensor_data['gyro'] = {
+                        'x': data_list[9],
+                        'y': data_list[10],
+                        'z': data_list[11]
+                }
+                sensor_data['mag'] = {
+                        'x': data_list[12],
+                        'y': data_list[13],
+                        'z': data_list[14]
+                }
+                sensor_data['quaternion'] = {
+                        '1': data_list[15],
+                        '2': data_list[16],
+                        '3': data_list[17],
+                        '4': data_list[18]
+                }
+                sensor_data['state'] = data_list[19]
+                sensor_data['timestamp'] = int(datetime.datetime.now().timestamp() * 1000)
+            csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
+            print(sensor_data)
+            sleep(0.1)
+           
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
     except Exception as e:
-        print("Error: {e}")
+        print(f"Error: {e}")
+        print("Error Recieved")
     finally:
         ser.close()
-  
+ 
 def start_serial_thread():
     serial_thread = threading.Thread(target=read_serial, daemon = True, args=(SERIAL_PORT, SERIAL_BAUDRATE))
     serial_thread.start()
     return serial_thread
-
+ 
 @app.route('/data')
 def get_data():
     with sensor_data_lock:
         global sensor_data
-        print(sensor_data)
-
+        print(f"Sensor Data Available: {bool(sensor_data)}")
+        print(f"Active Threads: {threading.active_count()}")
+ 
         if not sensor_data:
             return jsonify({"error": "No data available"}), 503
-
+ 
         return jsonify(sensor_data)
-
+ 
 def send_command(command):
     try:
         with serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE) as ser:
@@ -120,7 +134,7 @@ def send_command(command):
             # ser.flush()
     except Exception as e:
         print(f"Error: {e}")
-
+ 
 @app.route('/send', methods=['POST'])
 def send_data():
    # print("Received POST request")
@@ -133,10 +147,8 @@ def send_data():
         return jsonify({"status" : "OK", "state": state})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})
-
+ 
 if __name__ == '__main__':
     SERIAL_PORT = select_port()
     start_serial_thread()
-    app.run(debug=True)
-    
-    
+    app.run(debug=True, port = 5000, use_reloader=False)
