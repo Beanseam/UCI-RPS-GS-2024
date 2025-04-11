@@ -8,6 +8,9 @@ import datetime
 import json
 import csv_log
 import serial.tools.list_ports
+from flask_socketio import SocketIO
+
+
 
 SERIAL_PORT = 'COM6'
 #/dev/tty.usbserial-B000J0YT for MAC
@@ -15,6 +18,7 @@ SERIAL_BAUDRATE = 57600
 sensor_data_lock = threading.Lock()
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
 
 sensor_data = {}
@@ -101,16 +105,21 @@ def start_serial_thread():
     serial_thread.start()
     return serial_thread
 
-@app.route('/data')
+@socketio.on()
+def connect():
+    print('Client connected')
+    socketio.emit('Connected', {'data': 'Connected to server'})
+    
+@socketio.on('data')
 def get_data():
     with sensor_data_lock:
         global sensor_data
-        print(sensor_data)
+        print('received JSON', sensor_data)
 
         if not sensor_data:
             return jsonify({"error": "No data available"}), 503
-
-        return jsonify(sensor_data)
+        
+        socketio.emit('json_response', jsonify(sensor_data))
 
 def send_command(command):
     try:
@@ -137,6 +146,6 @@ def send_data():
 if __name__ == '__main__':
     SERIAL_PORT = select_port()
     start_serial_thread()
-    app.run(debug=True)
+    socketio.run(app, debug=True)
     
     
