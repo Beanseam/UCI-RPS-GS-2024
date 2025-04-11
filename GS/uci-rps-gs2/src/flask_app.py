@@ -22,7 +22,7 @@ socketio = SocketIO(app)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
 
 sensor_data = {}
-
+test_data = {}
 def select_port():
     ports = serial.tools.list_ports.comports()
     if not ports:
@@ -47,6 +47,32 @@ def select_port():
         except ValueError:
             print("Please enter a valid number.")
 
+def test():
+    global test_data
+    sensor_data['temperature'] = data_list[0]
+    sensor_data['press'] = data_list[1]
+    sensor_data['altitude'] = data_list[2]
+    sensor_data['acceleration'] = {
+            'x2': data_list[3],
+            'y2': data_list[4],
+            'z2': data_list[5],
+            'x': data_list[6],
+            'y': data_list[7],
+            'z': data_list[8]
+    }
+    sensor_data['mag'] = {
+            'x': data_list[9],
+            'y': data_list[10],
+            'z': data_list[11]
+    }
+    sensor_data['quaternion'] = {
+            '1': data_list[12],
+            '2': data_list[13],
+            '3': data_list[14],
+            '4': data_list[15]
+    }
+    sensor_data['timestamp'] = datetime.datetime.now()
+    
         
 
 def read_serial(serial_port, baudrate):
@@ -105,6 +131,11 @@ def start_serial_thread():
     serial_thread.start()
     return serial_thread
 
+def start_test_thread():
+    test_thread = threading.Thread(target=test, daemon = True)
+    test_thread.start()
+    return test_thread
+    
 @socketio.on()
 def connect():
     print('Client connected')
