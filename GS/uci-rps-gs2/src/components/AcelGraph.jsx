@@ -5,7 +5,12 @@ import Highcharts from 'highcharts';
 const AccelerationGraph = ({ timeData = [], acelDataX = [], acelDataY = [], acelDataZ = [] }) => {
   const [chartOptions, setChartOptions] = useState({
     title: { text: 'Acceleration vs. Time (LSM)' },
-    xAxis: { title: { text: 'Time (sec)' } },
+    //make time 2 decimal places
+    xAxis: { 
+      title: { text: 'Time (Min)' }, 
+      labels: { formatter: function () { return this.value.toFixed(2); } 
+      } 
+    },
     yAxis: { title: { text: 'Acceleration (m/s²)' } },
     series: [
       { name: 'X-Axis', data: [] },
@@ -16,10 +21,12 @@ const AccelerationGraph = ({ timeData = [], acelDataX = [], acelDataY = [], acel
 
   useEffect(() => {
     if (timeData.length === acelDataX.length) {
-      const formattedDataX = timeData.map((t, index) => [t, acelDataX[index] ?? 0]);
-      const formattedDataY = timeData.map((t, index) => [t, acelDataY[index] ?? 0]);
-      const formattedDataZ = timeData.map((t, index) => [t, acelDataZ[index] ?? 0]);
-
+      const initial = timeData[0] ?? 0;
+      //subtract initial time then convert ms to min
+      const formattedDataX = timeData.map((t, index) => [(t - initial)/1000/60, acelDataX[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [(t - initial)/1000/60, acelDataY[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [(t - initial)/1000/60, acelDataZ[index] ?? 0]);
+  
       setChartOptions(prevOptions => ({
         ...prevOptions,
         series: [
