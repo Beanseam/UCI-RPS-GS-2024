@@ -32,7 +32,7 @@ def select_port():
     if test_mode:
         print("Running in test mode...")
         return None
-        
+
     print("Searching for serial ports...")  
     ports = serial.tools.list_ports.comports()
     if not ports:
@@ -183,26 +183,23 @@ def connect():
     
 @socketio.on('data')
 def get_data():
-    with sensor_data_lock:
-        global sensor_data
-        print('received JSON', sensor_data)
-
-        if not sensor_data:
-            return jsonify({"error": "No data available"}), 503
-        
-        socketio.emit('json_response', sensor_data)
+    global sensor_data
+    if not sensor_data:
+        socketio.emit('Error', {"error": "No data available"})
+    while True:
+        time.sleep(0.1)
+        with sensor_data_lock:
+            socketio.emit('json_response', sensor_data)
 
 @socketio.on('test')
-def get_data_test():
-    with test_lock:
-        global test_data
-        print('received JSON', test_data)
-
-        if not test_data:
-            return jsonify({"error": "No data available"}), 503
-        
-        socketio.emit('json_response', test_data)
-
+def get_data():
+    global test_data
+    if not test_data:
+        socketio.emit('Error', {"error": "No data available"})
+    while True:
+        time.sleep(0.1)
+        with sensor_data_lock:
+            socketio.emit('json_response', test_data)
 
 def send_command(command):
     try:
@@ -239,8 +236,10 @@ def start_test_thread():
 
 if __name__ == '__main__':
     SERIAL_PORT = select_port()
-    #start_serial_thread()
-    start_test_thread()
+    if SERIAL_PORT is None:
+        start_test_thread()
+    else:
+        start_serial_thread()
     socketio.run(app, host="localhost", port=5000,debug=False)
     
     
