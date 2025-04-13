@@ -25,7 +25,7 @@ function App() {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket("ws://localhost:8080");
+    socketRef.current = new WebSocket("http://localhost:5000");
 
     socketRef.current.onmessage = (event) => {
       try {

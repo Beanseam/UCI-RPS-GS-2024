@@ -18,7 +18,7 @@
 #define camera1 20 // camera1
 #define camera2 21 // camera2
 
-#define HWSERIAL Serial7 // Hardware Serial Needed for RF
+#define HWSERIAL Serial // Hardware Serial Needed for RF
 #define CAM_SERIAL Serial1 // Serial for Camera
 
 
@@ -79,7 +79,7 @@ void writeSD(String data) {
 }
 
 void setup() {
-  Serial.begin(11520);
+  Serial.begin(115200);
   // while (!Serial);
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -91,7 +91,7 @@ void setup() {
   exit(0);
   }
 
-  HWSERIAL.begin(57600);
+  HWSERIAL.begin(115200);//57600
   CAM_SERIAL.begin(57600);
 
   pinMode(main_1, OUTPUT);
