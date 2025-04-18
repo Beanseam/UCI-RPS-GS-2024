@@ -60,9 +60,9 @@ async def read_serial(broadcast_queue: asyncio.Queue):
             if ser and ser.is_open and ser.in_waiting > 0:
                 data = ser.readline().decode().strip()
                 if data:
-                    # logging.info(f"Serial Data: {data}")
-                    if "TEENSY" in data:
-                        logging.info(f"TEENSY Data: {data}")
+                    logging.info(f"Serial Data: {data}")
+                    # if "TEENSY" in data:
+                    #     logging.info(f"TEENSY Data: {data}")
                     await broadcast_queue.put(data)
                     
         except Exception as e:

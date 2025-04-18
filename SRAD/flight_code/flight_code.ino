@@ -259,7 +259,6 @@ void loop(){
       delay(charge_delay);
       digitalWrite(main_1, LOW);
       writeSD("Primary Main Deployed");
-
       delay(backup_delay);
 
       digitalWrite(main_2, HIGH);
