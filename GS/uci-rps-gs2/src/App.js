@@ -33,7 +33,6 @@ function App() {
       socketRef.emit(USE_TEST_MODE ? "test" : "data");
     });
   
-    console.log("Running ");
     socketRef.on("json_response", (dataString) => {
       console.log(dataString);
       if (dataString){
