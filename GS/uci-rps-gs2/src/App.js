@@ -23,22 +23,21 @@ function App() {
   });
 
   const socketRef = io("http://localhost:5000");
-
+  const USE_TEST_MODE = true; // switch to false for real sensor data
   
   useEffect(() => {
-     
+
   
-    const USE_TEST_MODE = true; // switch to false for real sensor data
-    console.log("Starting");
     socketRef.on("connect", () => {
       console.log("Socket connected");
       socketRef.emit(USE_TEST_MODE ? "test" : "data");
     });
   
+    console.log("Running ");
     socketRef.on("json_response", (dataString) => {
       console.log(dataString);
+      if (dataString){
       try {
-        
         setSensorData(prevData => ({
           ...prevData,
           temp: [...prevData.temp, parseInt(dataString['temperature'])],
@@ -68,6 +67,7 @@ function App() {
       } catch (err) {
         console.error("Data parse error:", err);
       }
+      } 
     });
   
     socketRef.on("disconnect", () => {
@@ -75,7 +75,7 @@ function App() {
     });
   
     return () => {
-      socketRef.disconnect();
+      socketRef.off();
     };
   }, []);
   
@@ -138,11 +138,11 @@ function App() {
             acelDataY2={sensorData['acc_y_2']}
             acelDataZ2={sensorData['acc_z_2']}
           />
-          <MagGraph
+          {/* <MagGraph
             magDataX={sensorData['mag_x']}
             magDataY={sensorData['mag_y']}
             magDataZ={sensorData['mag_z']}
-          />
+          /> */}
         </div>
       </main>
 

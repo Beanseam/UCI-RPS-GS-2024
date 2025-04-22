@@ -21,8 +21,8 @@ SERIAL_BAUDRATE = 115200 #57600
 sensor_data_lock = threading.Lock()
 test_lock = threading.Lock()
 app = Flask(__name__)
-socketio = SocketIO(app)
-#CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
+socketio = SocketIO(app, cors_allowed_origins="*")
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
 
 sensor_data = {}
 test_data = {}
@@ -121,7 +121,7 @@ def read_test():
                 '3': q3,
                 '4': q4
             }
-            test_data['timestamp'] = datetime.datetime.now()
+            test_data['timestamp'] = datetime.datetime.now().isoformat()
 
         time.sleep(dt)
         t += dt
@@ -202,6 +202,7 @@ def get_data_api():
 
 @socketio.on('test')
 def get_test_data():
+    print('test socket')
     global test_data
     if not test_data:
         socketio.emit('Error', {"error": "No data available"})
