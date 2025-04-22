@@ -28,7 +28,7 @@ function App() {
   useEffect(() => {
     socketRef.current = io("http://localhost:5000");
   
-    const USE_TEST_MODE = true; // switch to false for real sensor data
+    const USE_TEST_MODE = false; // switch to false for real sensor data
   
     socketRef.current.on("connect", () => {
       console.log("Socket connected");
