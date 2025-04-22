@@ -11,6 +11,7 @@ import serial.tools.list_ports
 from flask_socketio import SocketIO
 import random
 import math
+import time
 
 
 
@@ -191,8 +192,16 @@ def get_data():
         with sensor_data_lock:
             socketio.emit('json_response', sensor_data)
 
+@app.route('/data', methods=['GET'])
+def get_data_api():
+    global sensor_data
+    if not sensor_data:
+        return jsonify({"error": "No data available"})
+    with sensor_data_lock:
+        return jsonify(sensor_data)
+
 @socketio.on('test')
-def get_data():
+def get_test_data():
     global test_data
     if not test_data:
         socketio.emit('Error', {"error": "No data available"})
@@ -200,6 +209,14 @@ def get_data():
         time.sleep(0.1)
         with sensor_data_lock:
             socketio.emit('json_response', test_data)
+
+@app.route('/test', methods=['GET'])
+def get_test_data_api():
+    global test_data
+    if not test_data:
+        return jsonify({"error": "No data available"})
+    with test_lock:
+        return jsonify(test_data)
 
 def send_command(command):
     try:
