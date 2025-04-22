@@ -22,20 +22,20 @@ function App() {
     quat: { x: 0, y: 0, z: 0, w: 1 }
   });
 
-  const socketRef = useRef(null);
-
+  const socketRef = io("http://localhost:5000");
+  const USE_TEST_MODE = true; // switch to false for real sensor data
   
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000");
+
   
-    const USE_TEST_MODE = false; // switch to false for real sensor data
-  
-    socketRef.current.on("connect", () => {
+    socketRef.on("connect", () => {
       console.log("Socket connected");
-      socketRef.current.emit(USE_TEST_MODE ? "test" : "data");
+      socketRef.emit(USE_TEST_MODE ? "test" : "data");
     });
   
-    socketRef.current.on("json_response", (dataString) => {
+    socketRef.on("json_response", (dataString) => {
+      console.log(dataString);
+      if (dataString){
       try {
         setSensorData(prevData => ({
           ...prevData,
@@ -66,22 +66,23 @@ function App() {
       } catch (err) {
         console.error("Data parse error:", err);
       }
+      } 
     });
   
-    socketRef.current.on("disconnect", () => {
+    socketRef.on("disconnect", () => {
       console.warn("Socket disconnected");
     });
   
     return () => {
-      socketRef.current.disconnect();
+      socketRef.off();
     };
   }, []);
   
 
   //command send function
   const sendCommand = (command) => {
-    if (socketRef.current?.connected) {
-      socketRef.current.emit("command", { command });
+    if (socketRef?.connected) {
+      socketRef.emit("command", { command });
     } else {
       console.warn("Socket not connected.");
     }
@@ -136,11 +137,11 @@ function App() {
             acelDataY2={sensorData['acc_y_2']}
             acelDataZ2={sensorData['acc_z_2']}
           />
-          <MagGraph
+          {/* <MagGraph
             magDataX={sensorData['mag_x']}
             magDataY={sensorData['mag_y']}
             magDataZ={sensorData['mag_z']}
-          />
+          /> */}
         </div>
       </main>
 
