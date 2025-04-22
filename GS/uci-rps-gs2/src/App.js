@@ -1,7 +1,7 @@
 import "./index.css";
 
 import React, { useState, useEffect, useRef } from 'react';
-
+import { io } from "socket.io-client";
 import Model from "./components/model.jsx";
 //import Title from './components/Title.jsx';
 import AltGraph from './components/AltGraph.jsx';
@@ -24,59 +24,66 @@ function App() {
 
   const socketRef = useRef(null);
 
+  
   useEffect(() => {
-    socketRef.current = new WebSocket("http://localhost:5000");
-
-    socketRef.current.onmessage = (event) => {
+    socketRef.current = io("http://localhost:5000");
+  
+    const USE_TEST_MODE = false; // switch to false for real sensor data
+  
+    socketRef.current.on("connect", () => {
+      console.log("Socket connected");
+      socketRef.current.emit(USE_TEST_MODE ? "test" : "data");
+    });
+  
+    socketRef.current.on("json_response", (dataString) => {
       try {
-        const dataString = JSON.parse(event.data);
-
         setSensorData(prevData => ({
           ...prevData,
           temp: [...prevData.temp, parseInt(dataString['temperature'])],
-          pres: [...prevData.pres, parseInt(dataString['press'])],
+          pres: [...prevData.pres, parseInt(dataString['pressure'])],
           alt: [...prevData.alt, parseInt(dataString['altitude'])],
-          acc_x_2: [...prevData.acc_x_2, parseInt(dataString['acceleration']['x2'])],
-          acc_y_2: [...prevData.acc_y_2, parseInt(dataString['acceleration']['y2'])],
-          acc_z_2: [...prevData.acc_z_2, parseInt(dataString['acceleration']['z2'])],
-          acc_x: [...prevData.acc_x, parseInt(dataString['acceleration']['x'])],
-          acc_y: [...prevData.acc_y, parseInt(dataString['acceleration']['y'])],
-          acc_z: [...prevData.acc_z, parseInt(dataString['acceleration']['z'])],
-          gyro_x: [...prevData.gyro_x, parseInt(dataString['gyro']['x'])],
-          gyro_y: [...prevData.gyro_y, parseInt(dataString['gyro']['y'])],
-          gyro_z: [...prevData.gyro_z, parseInt(dataString['gyro']['z'])],
-          mag_x: [...prevData.mag_x, parseInt(dataString['mag']['x'])],
-          mag_y: [...prevData.mag_y, parseInt(dataString['mag']['y'])],
-          mag_z: [...prevData.mag_z, parseInt(dataString['mag']['z'])],
+          acc_x_2: [...prevData.acc_x_2, parseFloat(dataString['acceleration']['x2'])],
+          acc_y_2: [...prevData.acc_y_2, parseFloat(dataString['acceleration']['y2'])],
+          acc_z_2: [...prevData.acc_z_2, parseFloat(dataString['acceleration']['z2'])],
+          acc_x: [...prevData.acc_x, parseFloat(dataString['acceleration']['x'])],
+          acc_y: [...prevData.acc_y, parseFloat(dataString['acceleration']['y'])],
+          acc_z: [...prevData.acc_z, parseFloat(dataString['acceleration']['z'])],
+          gyro_x: [...prevData.gyro_x, 0], 
+          gyro_y: [...prevData.gyro_y, 0],
+          gyro_z: [...prevData.gyro_z, 0],
+          mag_x: [...prevData.mag_x, parseFloat(dataString['mag']['x'])],
+          mag_y: [...prevData.mag_y, parseFloat(dataString['mag']['y'])],
+          mag_z: [...prevData.mag_z, parseFloat(dataString['mag']['z'])],
           quat: {
             x: parseFloat(dataString['quaternion']['1']),
             y: parseFloat(dataString['quaternion']['3']),
             z: parseFloat(dataString['quaternion']['2']),
             w: parseFloat(dataString['quaternion']['4'])
           },
-          state: [...prevData.state, parseInt(dataString['state'])],
-          time: [...prevData.time, parseInt(dataString['timestamp'])]
+          state: [...prevData.state, 0],
+          time: [...prevData.time, new Date(dataString['timestamp']).getTime()]
         }));
       } catch (err) {
-        console.error("WebSocket data error:", err);
+        console.error("Data parse error:", err);
       }
-    };
-
-    socketRef.current.onerror = (err) => {
-      console.error("WebSocket connection error:", err);
-    };
-
+    });
+  
+    socketRef.current.on("disconnect", () => {
+      console.warn("Socket disconnected");
+    });
+  
     return () => {
-      socketRef.current.close();
+      socketRef.current.disconnect();
     };
   }, []);
+  
 
   //command send function
   const sendCommand = (command) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({ command }));
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("command", { command });
     } else {
-      console.warn("WebSocket not open. Cannot send command.");
+      console.warn("Socket not connected.");
     }
   };
 
@@ -109,7 +116,7 @@ function App() {
       </header>
 
       <main>
-        <div>
+        <div className="my-14">
           <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
           <GyroGraph
             timeData={sensorData['time']}
