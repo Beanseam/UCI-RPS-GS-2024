@@ -22,21 +22,23 @@ function App() {
     quat: { x: 0, y: 0, z: 0, w: 1 }
   });
 
-  const socketRef = useRef(null);
+  const socketRef = io("http://localhost:5000");
 
   
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000");
+     
   
-    const USE_TEST_MODE = false; // switch to false for real sensor data
-  
-    socketRef.current.on("connect", () => {
+    const USE_TEST_MODE = true; // switch to false for real sensor data
+    console.log("Starting");
+    socketRef.on("connect", () => {
       console.log("Socket connected");
-      socketRef.current.emit(USE_TEST_MODE ? "test" : "data");
+      socketRef.emit(USE_TEST_MODE ? "test" : "data");
     });
   
-    socketRef.current.on("json_response", (dataString) => {
+    socketRef.on("json_response", (dataString) => {
+      console.log(dataString);
       try {
+        
         setSensorData(prevData => ({
           ...prevData,
           temp: [...prevData.temp, parseInt(dataString['temperature'])],
@@ -68,20 +70,20 @@ function App() {
       }
     });
   
-    socketRef.current.on("disconnect", () => {
+    socketRef.on("disconnect", () => {
       console.warn("Socket disconnected");
     });
   
     return () => {
-      socketRef.current.disconnect();
+      socketRef.disconnect();
     };
   }, []);
   
 
   //command send function
   const sendCommand = (command) => {
-    if (socketRef.current?.connected) {
-      socketRef.current.emit("command", { command });
+    if (socketRef?.connected) {
+      socketRef.emit("command", { command });
     } else {
       console.warn("Socket not connected.");
     }
