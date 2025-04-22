@@ -180,8 +180,7 @@ def read_serial(serial_port, baudrate):
 @socketio.on('connect')
 def connect():
     print('Client connected')
-    socketio.emit('Connected', {'data': 'Connected to server'})
-    
+   
 @socketio.on('data')
 def get_data():
     global sensor_data
@@ -208,6 +207,7 @@ def get_test_data():
     while True:
         time.sleep(0.1)
         with sensor_data_lock:
+            print(test_data)
             socketio.emit('json_response', test_data)
 
 @app.route('/test', methods=['GET'])
