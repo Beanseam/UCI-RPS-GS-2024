@@ -16,9 +16,10 @@ const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [],
 
   useEffect(() => {
     if (timeData.length === acelDataX2.length) {
-      const formattedDataX = timeData.map((t, index) => [t, acelDataX2[index] ?? 0]);
-      const formattedDataY = timeData.map((t, index) => [t, acelDataY2[index] ?? 0]);
-      const formattedDataZ = timeData.map((t, index) => [t, acelDataZ2[index] ?? 0]);
+      const initial = timeData[0] ?? 0;
+      const formattedDataX = timeData.map((t, index) => [(t - initial)/1000/60, acelDataX2[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [(t - initial)/1000/60, acelDataY2[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [(t - initial)/1000/60, acelDataZ2[index] ?? 0]);
 
       setChartOptions(prevOptions => ({
         ...prevOptions,

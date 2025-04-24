@@ -12,7 +12,8 @@ const AltitudeChart = ({ timeData = [], altData = [] }) => {
  
   useEffect(() => {
     if (timeData.length === altData.length) {
-      const formattedData = timeData.map((t, index) => [t, altData[index]]);
+      const initial = timeData[0] ?? 0;
+      const formattedData = timeData.map((t, index) => [(t - initial)/1000/60, altData[index]]);
       setChartOptions(prevOptions => ({
         ...prevOptions,
         series: [{ ...prevOptions.series[0], data: formattedData }]

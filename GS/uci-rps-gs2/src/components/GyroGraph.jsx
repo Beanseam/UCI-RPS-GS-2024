@@ -16,9 +16,10 @@ const GyroGraph = ({ timeData = [], gyroDataX = [], gyroDataY = [], gyroDataZ = 
 
   useEffect(() => {
     if (timeData.length === gyroDataX.length) {
-      const formattedDataX = timeData.map((t, index) => [t, gyroDataX[index] ?? 0]);
-      const formattedDataY = timeData.map((t, index) => [t, gyroDataY[index] ?? 0]);
-      const formattedDataZ = timeData.map((t, index) => [t, gyroDataZ[index] ?? 0]);
+      const initial = timeData[0] ?? 0;
+      const formattedDataX = timeData.map((t, index) => [(t - initial)/1000/60, gyroDataX[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [(t - initial)/1000/60, gyroDataY[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [(t - initial)/1000/60, gyroDataZ[index] ?? 0]);
 
       setChartOptions(prevOptions => ({
         ...prevOptions,

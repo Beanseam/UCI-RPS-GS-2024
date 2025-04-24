@@ -33,7 +33,6 @@ function App() {
       socketRef.emit(USE_TEST_MODE ? "test" : "data");
     });
   
-    console.log("Running ");
     socketRef.on("json_response", (dataString) => {
       console.log(dataString);
       if (dataString){
@@ -112,7 +111,7 @@ function App() {
             UCI Rocket Project Solids - Ground Station
           </h1>
           <p className="alignright">
-            {/* <States stateData={sensorData['state']} /> */}
+            <States stateData={sensorData['state']} />
           </p>
         </div>
       </header>
@@ -138,11 +137,12 @@ function App() {
             acelDataY2={sensorData['acc_y_2']}
             acelDataZ2={sensorData['acc_z_2']}
           />
-          {/* <MagGraph
+           <MagGraph
+            timeData={sensorData['time']}
             magDataX={sensorData['mag_x']}
             magDataY={sensorData['mag_y']}
             magDataZ={sensorData['mag_z']}
-          /> */}
+          />
         </div>
       </main>
 
@@ -152,10 +152,10 @@ function App() {
         </div>
         <div className="text-center pr-10">
           <p className="text-lg">
-            Time: {sensorData?.['time'].at(-1) ?? 'N/A'} |
-            Altitude: {sensorData?.['alt'].at(-1) ?? 'N/A'} |
-            Temperature: {sensorData?.['temp'].at(-1) ?? 'N/A'} |
-            Pressure: {sensorData?.['pres'].at(-1) ?? 'N/A'}
+          Time: {sensorData?.['time']?.at(-1) !== undefined ? ((sensorData['time'].at(-1)-sensorData['time'].at(0))/1000/60).toFixed(2) : 'N/A'} |
+          Altitude: {sensorData?.['alt']?.at(-1) !== undefined ? sensorData['alt'].at(-1).toFixed(2) : 'N/A'} |
+          Temperature: {sensorData?.['temp']?.at(-1) !== undefined ? sensorData['temp'].at(-1).toFixed(2) : 'N/A'} |
+          Pressure: {sensorData?.['pres']?.at(-1) !== undefined ? sensorData['pres'].at(-1).toFixed(2) : 'N/A'}
           </p>
 
           <table className="overflow-y-auto h-1/4 w-full border border-gray-500 text-white">
@@ -168,30 +168,31 @@ function App() {
               </tr>
             </thead>
             <tbody className="bg-gray-800">
-              <tr>
-                <td className="border border-gray-500 px-4 py-2">Acceleration LSM</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_x'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_y'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_z'].at(-1) ?? 'N/A'}</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-500 px-4 py-2">Acceleration LIS</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_x_2'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_y_2'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['acc_z_2'].at(-1) ?? 'N/A'}</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-500 px-4 py-2">Angular Speed</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['gyro_x'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['gyro_y'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['gyro_z'].at(-1) ?? 'N/A'}</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-500 px-4 py-2">Magnetometer</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['mag_x'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['mag_y'].at(-1) ?? 'N/A'}</td>
-                <td className="border border-gray-500 px-4 py-2">{sensorData?.['mag_z'].at(-1) ?? 'N/A'}</td>
-              </tr>
+            <tr>
+              <td className="border border-gray-500 px-4 py-2">Acceleration LSM</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_x']?.at(-1) === 'number' ? sensorData['acc_x'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_y']?.at(-1) === 'number' ? sensorData['acc_y'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_z']?.at(-1) === 'number' ? sensorData['acc_z'].at(-1).toFixed(2) : 'N/A'}</td>
+            </tr>
+            <tr>
+              <td className="border border-gray-500 px-4 py-2">Acceleration LIS</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_x_2']?.at(-1) === 'number' ? sensorData['acc_x_2'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_y_2']?.at(-1) === 'number' ? sensorData['acc_y_2'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_z_2']?.at(-1) === 'number' ? sensorData['acc_z_2'].at(-1).toFixed(2) : 'N/A'}</td>
+            </tr>
+            <tr>
+              <td className="border border-gray-500 px-4 py-2">Angular Speed</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_x']?.at(-1) === 'number' ? sensorData['gyro_x'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_y']?.at(-1) === 'number' ? sensorData['gyro_y'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_z']?.at(-1) === 'number' ? sensorData['gyro_z'].at(-1).toFixed(2) : 'N/A'}</td>
+            </tr>
+            <tr>
+              <td className="border border-gray-500 px-4 py-2">Magnetometer</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_x']?.at(-1) === 'number' ? sensorData['mag_x'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_y']?.at(-1) === 'number' ? sensorData['mag_y'].at(-1).toFixed(2) : 'N/A'}</td>
+              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_z']?.at(-1) === 'number' ? sensorData['mag_z'].at(-1).toFixed(2) : 'N/A'}</td>
+            </tr>
+
             </tbody>
           </table>
         </div>
