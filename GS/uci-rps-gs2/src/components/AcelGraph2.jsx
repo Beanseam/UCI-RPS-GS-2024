@@ -4,8 +4,8 @@ import Highcharts from 'highcharts';
 
 const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [], acelDataZ2 = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Acceleration vs. Time (LIS)' },
-    xAxis: { title: { text: 'Time (sec)' } },
+    title: { text: 'Acceleration (m/s²) vs. Time (LIS)' },
+    xAxis: { title: { text: 'Time (min)' } },
     yAxis: { title: { text: 'Acceleration (m/s²)' } },
     series: [
       { name: 'X-Axis', data: [] },
@@ -16,9 +16,10 @@ const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [],
 
   useEffect(() => {
     if (timeData.length === acelDataX2.length) {
-      const formattedDataX = timeData.map((t, index) => [t, acelDataX2[index] ?? 0]);
-      const formattedDataY = timeData.map((t, index) => [t, acelDataY2[index] ?? 0]);
-      const formattedDataZ = timeData.map((t, index) => [t, acelDataZ2[index] ?? 0]);
+      const initial = timeData[0] ?? 0;
+      const formattedDataX = timeData.map((t, index) => [(t - initial)/1000/60, acelDataX2[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [(t - initial)/1000/60, acelDataY2[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [(t - initial)/1000/60, acelDataZ2[index] ?? 0]);
 
       setChartOptions(prevOptions => ({
         ...prevOptions,
@@ -33,7 +34,7 @@ const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [],
 
   return (
     <HighchartsReact 
-      containerProps={{ style: { height: "270px" } }}
+      containerProps={{ style: { height: "270px", width: "30vw"} }}
       highcharts={Highcharts}
       options={chartOptions}
     />

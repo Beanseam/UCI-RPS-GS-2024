@@ -3,68 +3,48 @@ import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts';
 
 const MagneticFieldGraph = ({ timeData = [], magDataX = [], magDataY = [], magDataZ = [] }) => {
-  const [chartOptionsX, setChartOptionsX] = useState({
-    title: { text: 'Magnetic Field (X-Axis) vs. Time' },
-    xAxis: { title: { text: 'Time (sec)' } },
+  const [chartOptions, setChartOptions] = useState({
+    title: { text: 'Magnetic Field (uTesla) vs. Time' },
+    xAxis: { 
+      title: { text: 'Time (min)' },
+      labels: {
+        formatter: function () {
+          return this.value.toFixed(2); // display 2 decimal places
+        }
+      }
+    },
     yAxis: { title: { text: 'Magnetic Field (uTesla)' } },
-    series: [{ name: 'X-Axis', data: [] }]
-  });
-
-  const [chartOptionsY, setChartOptionsY] = useState({
-    title: { text: 'Magnetic Field (Y-Axis) vs. Time' },
-    xAxis: { title: { text: 'Time (sec)' } },
-    yAxis: { title: { text: 'Magnetic Field (uTesla)' } },
-    series: [{ name: 'Y-Axis', data: [] }]
-  });
-
-  const [chartOptionsZ, setChartOptionsZ] = useState({
-    title: { text: 'Magnetic Field (Z-Axis) vs. Time' },
-    xAxis: { title: { text: 'Time (sec)' } },
-    yAxis: { title: { text: 'Magnetic Field (uTesla)' } },
-    series: [{ name: 'Z-Axis', data: [] }]
+    series: [
+      { name: 'X-Axis', data: [] },
+      { name: 'Y-Axis', data: [] },
+      { name: 'Z-Axis', data: [] }
+    ]
   });
 
   useEffect(() => {
     if (timeData.length === magDataX.length) {
-      const formattedDataX = timeData.map((t, index) => [t, magDataX[index] ?? 0]);
-      const formattedDataY = timeData.map((t, index) => [t, magDataY[index] ?? 0]);
-      const formattedDataZ = timeData.map((t, index) => [t, magDataZ[index] ?? 0]);
+      const initial = timeData[0] ?? 0;
+      const formattedDataX = timeData.map((t, index) => [(t - initial) / 1000 / 60, magDataX[index] ?? 0]);
+      const formattedDataY = timeData.map((t, index) => [(t - initial) / 1000 / 60, magDataY[index] ?? 0]);
+      const formattedDataZ = timeData.map((t, index) => [(t - initial) / 1000 / 60, magDataZ[index] ?? 0]);
 
-      setChartOptionsX(prevOptions => ({
+      setChartOptions(prevOptions => ({
         ...prevOptions,
-        series: [{ ...prevOptions.series[0], data: formattedDataX }]
-      }));
-
-      setChartOptionsY(prevOptions => ({
-        ...prevOptions,
-        series: [{ ...prevOptions.series[0], data: formattedDataY }]
-      }));
-
-      setChartOptionsZ(prevOptions => ({
-        ...prevOptions,
-        series: [{ ...prevOptions.series[0], data: formattedDataZ }]
+        series: [
+          { ...prevOptions.series[0], data: formattedDataX },
+          { ...prevOptions.series[1], data: formattedDataY },
+          { ...prevOptions.series[2], data: formattedDataZ }
+        ]
       }));
     }
   }, [timeData, magDataX, magDataY, magDataZ]);
 
   return (
-    <div>
-      <HighchartsReact 
-        containerProps={{ style: { height: "180px" } }} 
-        highcharts={Highcharts} 
-        options={chartOptionsX} 
-      />
-      <HighchartsReact 
-        containerProps={{ style: { height: "180px" } }} 
-        highcharts={Highcharts} 
-        options={chartOptionsY} 
-      />
-      <HighchartsReact 
-        containerProps={{ style: { height: "180px" } }} 
-        highcharts={Highcharts} 
-        options={chartOptionsZ} 
-      />
-    </div>
+    <HighchartsReact
+    containerProps={{ style: { height: "270px", width: "30vw"} }}
+      highcharts={Highcharts}
+      options={chartOptions}
+    />
   );
 };
 
