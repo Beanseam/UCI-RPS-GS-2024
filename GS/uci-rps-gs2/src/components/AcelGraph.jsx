@@ -4,10 +4,10 @@ import Highcharts from 'highcharts';
 
 const AccelerationGraph = ({ timeData = [], acelDataX = [], acelDataY = [], acelDataZ = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Acceleration vs. Time (LSM)' },
+    title: { text: 'Acceleration (m/s²) vs. Time (LSM)' },
     //make time 2 decimal places
     xAxis: { 
-      title: { text: 'Time (Min)' }, 
+      title: { text: 'Time (min)' }, 
       labels: { formatter: function () { return this.value.toFixed(2); } 
       } 
     },
@@ -40,7 +40,7 @@ const AccelerationGraph = ({ timeData = [], acelDataX = [], acelDataY = [], acel
 
   return (
     <HighchartsReact
-      containerProps={{ style: { height: "270px" } }}
+      containerProps={{ style: { height: "270px", width: "30vw"} }}
       highcharts={Highcharts}
       options={chartOptions}
     />

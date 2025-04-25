@@ -4,9 +4,9 @@ import Highcharts from 'highcharts';
 
 const MagneticFieldGraph = ({ timeData = [], magDataX = [], magDataY = [], magDataZ = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Magnetic Field vs. Time' },
+    title: { text: 'Magnetic Field (uTesla) vs. Time' },
     xAxis: { 
-      title: { text: 'Time (Min)' },
+      title: { text: 'Time (min)' },
       labels: {
         formatter: function () {
           return this.value.toFixed(2); // display 2 decimal places
@@ -41,7 +41,7 @@ const MagneticFieldGraph = ({ timeData = [], magDataX = [], magDataY = [], magDa
 
   return (
     <HighchartsReact
-      containerProps={{ style: { height: "270px" } }}
+    containerProps={{ style: { height: "270px", width: "30vw"} }}
       highcharts={Highcharts}
       options={chartOptions}
     />

@@ -4,8 +4,8 @@ import Highcharts from 'highcharts';
  
 const AltitudeChart = ({ timeData = [], altData = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Altitude vs. Time' },
-    xAxis: { title: { text: 'Time (sec)' } },
+    title: { text: 'Altitude (ft) vs. Time' },
+    xAxis: { title: { text: 'Time (min)' } },
     yAxis: { title: { text: 'Altitude (ft)' } },
     series: [{ name: 'Altitude', data: [] }]
   });
@@ -21,7 +21,8 @@ const AltitudeChart = ({ timeData = [], altData = [] }) => {
     }
   }, [timeData, altData]);
  
-  return <HighchartsReact containerProps={{ style: { height: "270px" } }} highcharts={Highcharts} options={chartOptions} />;
+  return <HighchartsReact containerProps={{ style: { height: "270px", width: "30vw"} }}
+   highcharts={Highcharts} options={chartOptions} />;
 };
  
 export default AltitudeChart;

@@ -4,8 +4,8 @@ import Highcharts from 'highcharts';
 
 const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [], acelDataZ2 = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Acceleration vs. Time (LIS)' },
-    xAxis: { title: { text: 'Time (sec)' } },
+    title: { text: 'Acceleration (m/s²) vs. Time (LIS)' },
+    xAxis: { title: { text: 'Time (min)' } },
     yAxis: { title: { text: 'Acceleration (m/s²)' } },
     series: [
       { name: 'X-Axis', data: [] },
@@ -34,7 +34,7 @@ const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [],
 
   return (
     <HighchartsReact 
-      containerProps={{ style: { height: "270px" } }}
+      containerProps={{ style: { height: "270px", width: "30vw"} }}
       highcharts={Highcharts}
       options={chartOptions}
     />

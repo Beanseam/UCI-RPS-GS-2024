@@ -4,8 +4,8 @@ import Highcharts from 'highcharts';
 
 const GyroGraph = ({ timeData = [], gyroDataX = [], gyroDataY = [], gyroDataZ = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Angular Speed vs. Time' },
-    xAxis: { title: { text: 'Time (sec)' } },
+    title: { text: 'Angular Speed (rad/s) vs. Time' },
+    xAxis: { title: { text: 'Time (min)' } },
     yAxis: { title: { text: 'Angular Speed (rad/s)' } },
     series: [
       { name: 'X-Axis', data: [] },
@@ -34,7 +34,7 @@ const GyroGraph = ({ timeData = [], gyroDataX = [], gyroDataY = [], gyroDataZ = 
 
   return (
     <HighchartsReact
-      containerProps={{ style: { height: "270px" } }}
+    containerProps={{ style: { height: "270px", width: "30vw"} }}
       highcharts={Highcharts}
       options={chartOptions}
     />
