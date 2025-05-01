@@ -10,6 +10,8 @@ import GyroGraph from './components/GyroGraph.jsx';
 import MagGraph from './components/MagGraph.jsx';
 import AcelGraph2 from './components/AcelGraph2.jsx';
 import States from './components/States.jsx';
+import CameraButton from "./components/CameraButton.jsx";
+
 
 function App() {
   const [sensorData, setSensorData] = useState({
@@ -21,7 +23,7 @@ function App() {
     state: [],
     quat: { x: 0, y: 0, z: 0, w: 1 }
   });
-
+  
   const socketRef = io("http://localhost:5000");
   const USE_TEST_MODE = true; // switch to false for real sensor data
   
@@ -144,7 +146,7 @@ function App() {
   return (
     <body className='bg-gray-800 font-serif'>
       <header className="page-title">
-        <div className="left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg">
+        <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg flex flex-row">
           <p className="alignleft">
             <button className="reset-button" type="button" onClick={resetData}>Reset Data</button>
             <button className="reset-button" type="button" onClick={saveData}>Save Data</button>
@@ -159,7 +161,7 @@ function App() {
       </header>
 
       <main>
-        <div className="my-14 flex">
+        <div className="my-14 flex pt-8">
           <div>
             <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
             
@@ -234,9 +236,10 @@ function App() {
                   <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_y']?.at(-1) === 'number' ? sensorData['mag_y'].at(-1).toFixed(2) : 'N/A'}</td>
                   <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_z']?.at(-1) === 'number' ? sensorData['mag_z'].at(-1).toFixed(2) : 'N/A'}</td>
                 </tr>
-
+                
                 </tbody>
               </table>
+              <CameraButton/>
             </div>
           </div>
           
