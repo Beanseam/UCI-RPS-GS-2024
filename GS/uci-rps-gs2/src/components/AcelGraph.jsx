@@ -4,7 +4,7 @@ import Highcharts from 'highcharts';
 
 const AccelerationGraph = ({ timeData = [], acelDataX = [], acelDataY = [], acelDataZ = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-<<<<<<< HEAD
+
     title: { text: 'Acceleration (m/s²) vs. Time (LSM)', style:{color: '#FFFFFF'} },
     //make time 2 decimal places
     xAxis: { 

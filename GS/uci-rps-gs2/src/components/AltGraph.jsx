@@ -4,7 +4,7 @@ import Highcharts from 'highcharts';
 
 const AltitudeChart = ({ timeData = [], altData = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-<<<<<<< HEAD
+
     title: { text: 'Altitude (ft) vs. Time' , style:{color:'#FFFFFF'} },
     xAxis: { 
       title: { 
