@@ -1,7 +1,10 @@
-export default function CameraButton({isOn }) {
-  onClick = async() => {
+import React, { useState } from 'react';
+export default function CameraButton( ) {
+  const [isOn, setIsOn] = useState(false);
+  const onClick = async() => {
+    let res;
     if(!isOn){
-        const res = await fetch('http://localhost:5000/camera', {
+        res = await fetch('http://localhost:5000/camera', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -10,7 +13,7 @@ export default function CameraButton({isOn }) {
         });
     }
     else{
-        const res = await fetch('http://localhost:5000/camera', {
+        res = await fetch('http://localhost:5000/camera', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -20,7 +23,18 @@ export default function CameraButton({isOn }) {
     }
     if (!res.ok) {
         // Handle HTTP errors (e.g., 400, 500)
+
         throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+    else{
+        const data = await res.json();
+        if(data.state === "on"){
+          setIsOn(true);
+        }
+        else{
+          setIsOn(false);
+        }
+       
     }
 
   };
@@ -32,7 +46,7 @@ export default function CameraButton({isOn }) {
       className="camera-button"
       onClick={onClick}
       style={{
-        backgroundColor: "transparent",
+        backgroundColor: (isOn)? "green" : "red",
         border: "none",
         cursor: "pointer",
         padding: "0",

@@ -23,7 +23,7 @@ function App() {
     state: [],
     quat: { x: 0, y: 0, z: 0, w: 1 }
   });
-  const [cameraOn, setCameraOn] = useState(false);
+  
   const socketRef = io("http://localhost:5000");
   const USE_TEST_MODE = true; // switch to false for real sensor data
   
@@ -239,7 +239,7 @@ function App() {
                 
                 </tbody>
               </table>
-              {/* <CameraButton/> */}
+              <CameraButton/>
             </div>
           </div>
           
