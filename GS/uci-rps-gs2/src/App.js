@@ -99,13 +99,55 @@ function App() {
       state: [], time: []
     }));
   };
+  const saveData = () => {
+    if (!sensorData || !sensorData.time) return;
+      const headers = [
+        "time",
+        "alt",
+        "gyro_x", "gyro_y", "gyro_z",
+        "acc_x", "acc_y", "acc_z",
+        "acc_x_2", "acc_y_2", "acc_z_2",
+        "mag_x", "mag_y", "mag_z"
+      ];
 
+      const rows = sensorData.time.map((_, index) => [
+        sensorData.time[index] ?? "",
+        sensorData.alt?.[index] ?? "",
+        sensorData.gyro_x?.[index] ?? "",
+        sensorData.gyro_y?.[index] ?? "",
+        sensorData.gyro_z?.[index] ?? "",
+        sensorData.acc_x?.[index] ?? "",
+        sensorData.acc_y?.[index] ?? "",
+        sensorData.acc_z?.[index] ?? "",
+        sensorData.acc_x_2?.[index] ?? "",
+        sensorData.acc_y_2?.[index] ?? "",
+        sensorData.acc_z_2?.[index] ?? "",
+        sensorData.mag_x?.[index] ?? "",
+        sensorData.mag_y?.[index] ?? "",
+        sensorData.mag_z?.[index] ?? ""
+      ]);
+
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(row => row.join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "sensor_data.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  };
   return (
-    <body className='bg-blue-900 font-serif'>
+    <body className='bg-gray-800 font-serif'>
       <header className="page-title">
-        <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg h-1/15">
+        <div className="left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg">
           <p className="alignleft">
             <button className="reset-button" type="button" onClick={resetData}>Reset Data</button>
+            <button className="reset-button" type="button" onClick={saveData}>Save Data</button>
           </p>
           <h1 style={{ fontSize: '2.5em', width: "33.33333%", textAlign:"center", float: "left"}}>
             UCI Rocket Project Solids - Ground Station
@@ -117,84 +159,93 @@ function App() {
       </header>
 
       <main>
-        <div className="my-14">
-          <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
-          <GyroGraph
-            timeData={sensorData['time']}
-            gyroDataX={sensorData['gyro_x']}
-            gyroDataY={sensorData['gyro_y']}
-            gyroDataZ={sensorData['gyro_z']}
-          />
-          <AcelGraph
-            timeData={sensorData['time']}
-            acelDataX={sensorData['acc_x']}
-            acelDataY={sensorData['acc_y']}
-            acelDataZ={sensorData['acc_z']}
-          />
-          <AcelGraph2
-            timeData={sensorData['time']}
-            acelDataX2={sensorData['acc_x_2']}
-            acelDataY2={sensorData['acc_y_2']}
-            acelDataZ2={sensorData['acc_z_2']}
-          />
+        <div className="my-14 flex">
+          <div>
+            <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
+            
+            <GyroGraph
+              timeData={sensorData['time']}
+              gyroDataX={sensorData['gyro_x']}
+              gyroDataY={sensorData['gyro_y']}
+              gyroDataZ={sensorData['gyro_z']}
+            />
+            
+          </div>
+          <div>
+            <AcelGraph
+              timeData={sensorData['time']}
+              acelDataX={sensorData['acc_x']}
+              acelDataY={sensorData['acc_y']}
+              acelDataZ={sensorData['acc_z']}
+            />
+            <AcelGraph2
+              timeData={sensorData['time']}
+              acelDataX2={sensorData['acc_x_2']}
+              acelDataY2={sensorData['acc_y_2']}
+              acelDataZ2={sensorData['acc_z_2']}
+            />
+          </div>
+          <div>
            <MagGraph
             timeData={sensorData['time']}
             magDataX={sensorData['mag_x']}
             magDataY={sensorData['mag_y']}
             magDataZ={sensorData['mag_z']}
-          />
+            />
+            <div className="text-center pr-10">
+              <p className="text-lg text-white">
+              Time: {sensorData?.['time']?.at(-1) !== undefined ? ((sensorData['time'].at(-1)-sensorData['time'].at(0))/1000/60).toFixed(2) : 'N/A'} |
+              Altitude: {sensorData?.['alt']?.at(-1) !== undefined ? sensorData['alt'].at(-1).toFixed(2) : 'N/A'} |
+              Temperature: {sensorData?.['temp']?.at(-1) !== undefined ? sensorData['temp'].at(-1).toFixed(2) : 'N/A'} |
+              Pressure: {sensorData?.['pres']?.at(-1) !== undefined ? sensorData['pres'].at(-1).toFixed(2) : 'N/A'}
+              </p>
+
+              <table className="overflow-y-auto h-1/4 w-full border border-gray-500 text-white">
+                <thead className="bg-gray-700">
+                  <tr>
+                    <th className="border border-gray-500 px-4 py-2">Sensor</th>
+                    <th className="border border-gray-500 px-4 py-2">X</th>
+                    <th className="border border-gray-500 px-4 py-2">Y</th>
+                    <th className="border border-gray-500 px-4 py-2">Z</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-gray-800">
+                <tr>
+                  <td className="border border-gray-500 px-4 py-2">Acceleration LSM</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_x']?.at(-1) === 'number' ? sensorData['acc_x'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_y']?.at(-1) === 'number' ? sensorData['acc_y'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_z']?.at(-1) === 'number' ? sensorData['acc_z'].at(-1).toFixed(2) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-500 px-4 py-2">Acceleration LIS</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_x_2']?.at(-1) === 'number' ? sensorData['acc_x_2'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_y_2']?.at(-1) === 'number' ? sensorData['acc_y_2'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_z_2']?.at(-1) === 'number' ? sensorData['acc_z_2'].at(-1).toFixed(2) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-500 px-4 py-2">Angular Speed</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_x']?.at(-1) === 'number' ? sensorData['gyro_x'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_y']?.at(-1) === 'number' ? sensorData['gyro_y'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_z']?.at(-1) === 'number' ? sensorData['gyro_z'].at(-1).toFixed(2) : 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-500 px-4 py-2">Magnetometer</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_x']?.at(-1) === 'number' ? sensorData['mag_x'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_y']?.at(-1) === 'number' ? sensorData['mag_y'].at(-1).toFixed(2) : 'N/A'}</td>
+                  <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_z']?.at(-1) === 'number' ? sensorData['mag_z'].at(-1).toFixed(2) : 'N/A'}</td>
+                </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
         </div>
       </main>
 
       <footer className="flex flex-row justify-between items-center bg-gray-800 text-white p-4">
         <div>
           <Model quaternion={sensorData?.['quat']} />
-        </div>
-        <div className="text-center pr-10">
-          <p className="text-lg">
-          Time: {sensorData?.['time']?.at(-1) !== undefined ? ((sensorData['time'].at(-1)-sensorData['time'].at(0))/1000/60).toFixed(2) : 'N/A'} |
-          Altitude: {sensorData?.['alt']?.at(-1) !== undefined ? sensorData['alt'].at(-1).toFixed(2) : 'N/A'} |
-          Temperature: {sensorData?.['temp']?.at(-1) !== undefined ? sensorData['temp'].at(-1).toFixed(2) : 'N/A'} |
-          Pressure: {sensorData?.['pres']?.at(-1) !== undefined ? sensorData['pres'].at(-1).toFixed(2) : 'N/A'}
-          </p>
-
-          <table className="overflow-y-auto h-1/4 w-full border border-gray-500 text-white">
-            <thead className="bg-gray-700">
-              <tr>
-                <th className="border border-gray-500 px-4 py-2">Sensor</th>
-                <th className="border border-gray-500 px-4 py-2">X</th>
-                <th className="border border-gray-500 px-4 py-2">Y</th>
-                <th className="border border-gray-500 px-4 py-2">Z</th>
-              </tr>
-            </thead>
-            <tbody className="bg-gray-800">
-            <tr>
-              <td className="border border-gray-500 px-4 py-2">Acceleration LSM</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_x']?.at(-1) === 'number' ? sensorData['acc_x'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_y']?.at(-1) === 'number' ? sensorData['acc_y'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_z']?.at(-1) === 'number' ? sensorData['acc_z'].at(-1).toFixed(2) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td className="border border-gray-500 px-4 py-2">Acceleration LIS</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_x_2']?.at(-1) === 'number' ? sensorData['acc_x_2'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_y_2']?.at(-1) === 'number' ? sensorData['acc_y_2'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['acc_z_2']?.at(-1) === 'number' ? sensorData['acc_z_2'].at(-1).toFixed(2) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td className="border border-gray-500 px-4 py-2">Angular Speed</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_x']?.at(-1) === 'number' ? sensorData['gyro_x'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_y']?.at(-1) === 'number' ? sensorData['gyro_y'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['gyro_z']?.at(-1) === 'number' ? sensorData['gyro_z'].at(-1).toFixed(2) : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td className="border border-gray-500 px-4 py-2">Magnetometer</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_x']?.at(-1) === 'number' ? sensorData['mag_x'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_y']?.at(-1) === 'number' ? sensorData['mag_y'].at(-1).toFixed(2) : 'N/A'}</td>
-              <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_z']?.at(-1) === 'number' ? sensorData['mag_z'].at(-1).toFixed(2) : 'N/A'}</td>
-            </tr>
-
-            </tbody>
-          </table>
         </div>
       </footer>
     </body>
