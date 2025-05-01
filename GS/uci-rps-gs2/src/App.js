@@ -143,52 +143,10 @@ function App() {
       link.click();
       document.body.removeChild(link);
   };
-  const saveData = () => {
-    if (!sensorData || !sensorData.time) return;
-      const headers = [
-        "time",
-        "alt",
-        "gyro_x", "gyro_y", "gyro_z",
-        "acc_x", "acc_y", "acc_z",
-        "acc_x_2", "acc_y_2", "acc_z_2",
-        "mag_x", "mag_y", "mag_z"
-      ];
-
-      const rows = sensorData.time.map((_, index) => [
-        sensorData.time[index] ?? "",
-        sensorData.alt?.[index] ?? "",
-        sensorData.gyro_x?.[index] ?? "",
-        sensorData.gyro_y?.[index] ?? "",
-        sensorData.gyro_z?.[index] ?? "",
-        sensorData.acc_x?.[index] ?? "",
-        sensorData.acc_y?.[index] ?? "",
-        sensorData.acc_z?.[index] ?? "",
-        sensorData.acc_x_2?.[index] ?? "",
-        sensorData.acc_y_2?.[index] ?? "",
-        sensorData.acc_z_2?.[index] ?? "",
-        sensorData.mag_x?.[index] ?? "",
-        sensorData.mag_y?.[index] ?? "",
-        sensorData.mag_z?.[index] ?? ""
-      ]);
-
-      const csvContent = [
-        headers.join(","),
-        ...rows.map(row => row.join(","))
-      ].join("\n");
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "sensor_data.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-  };
   return (
     <body className='bg-gray-800 font-serif'>
       <header className="page-title">
-        <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg">
+        <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg flex flex-row">
           <p className="alignleft">
             <button className="reset-button" type="button" onClick={resetData}>Reset Data</button>
             <button className="reset-button" type="button" onClick={saveData}>Save Data</button>
@@ -203,7 +161,7 @@ function App() {
       </header>
 
       <main>
-        <div className="my-14 flex">
+        <div className="my-14 flex pt-8">
           <div>
             <AltGraph altData={sensorData['alt']} timeData={sensorData['time']}/>  
             
@@ -278,9 +236,10 @@ function App() {
                   <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_y']?.at(-1) === 'number' ? sensorData['mag_y'].at(-1).toFixed(2) : 'N/A'}</td>
                   <td className="border border-gray-500 px-4 py-2">{typeof sensorData?.['mag_z']?.at(-1) === 'number' ? sensorData['mag_z'].at(-1).toFixed(2) : 'N/A'}</td>
                 </tr>
-
+                
                 </tbody>
               </table>
+              <CameraButton/>
             </div>
           </div>
           
