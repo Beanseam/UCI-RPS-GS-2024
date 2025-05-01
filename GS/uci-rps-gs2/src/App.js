@@ -145,8 +145,8 @@ function App() {
   };
   return (
     <body className='bg-gray-800 font-serif'>
-      <header className="page-title">
-        <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg flex flex-row">
+      <header className="page-title " >
+        <div className="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 z-50 shadow-lg flex flex-row justify-center">
           <p className="alignleft">
             <button className="reset-button" type="button" onClick={resetData}>Reset Data</button>
             <button className="reset-button" type="button" onClick={saveData}>Save Data</button>
@@ -246,8 +246,8 @@ function App() {
         </div>
       </main>
 
-      <footer className="flex flex-row justify-between items-center bg-gray-800 text-white p-4">
-        <div>
+      <footer className="flex flex-row justify-center items-center bg-gray-800 text-white p-4 flex">
+        <div className="justify-center">
           <Model quaternion={sensorData?.['quat']} />
         </div>
       </footer>

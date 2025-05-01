@@ -4,10 +4,25 @@ import Highcharts from 'highcharts';
  
 const AltitudeChart = ({ timeData = [], altData = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Altitude (ft) vs. Time' },
-    xAxis: { title: { text: 'Time (min)' } },
-    yAxis: { title: { text: 'Altitude (ft)' } },
-    series: [{ name: 'Altitude', data: [] }]
+    title: { text: 'Altitude (ft) vs. Time' , style:{color:'#FFFFFF'} },
+    xAxis: { title: { text: 'Time (min)'  , style:{color:'#FFFFFF'}} },
+    yAxis: { title: { text: 'Altitude (ft)', style:{color:'#FFFFFF'} } },
+    series: [{ name: 'Altitude', data: [] }],
+    credits: { enabled: false },
+    chart:{
+      backgroundColor: '#1F2937',
+    },
+    legend: {
+      itemStyle: {
+        color: '#FFFFFF',
+      },
+      itemHoverStyle: {
+        color: '#FFB511',
+      },
+      itemHiddenStyle: {
+        color: '#666',
+      },
+    },
   });
  
   useEffect(() => {

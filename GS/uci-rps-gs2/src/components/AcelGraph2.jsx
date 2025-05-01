@@ -4,14 +4,29 @@ import Highcharts from 'highcharts';
 
 const AccelerationGraphLIS = ({ timeData = [], acelDataX2 = [], acelDataY2 = [], acelDataZ2 = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Acceleration (m/s²) vs. Time (LIS)' },
-    xAxis: { title: { text: 'Time (min)' } },
-    yAxis: { title: { text: 'Acceleration (m/s²)' } },
+    title: { text: 'Acceleration (m/s²) vs. Time (LIS)',  style:{color: '#FFFFFF'}  },
+    xAxis: { title: { text: 'Time (min)',  style:{color: '#FFFFFF'} } },
+    yAxis: { title: { text: 'Acceleration (m/s²)',  style:{color: '#FFFFFF'} } },
     series: [
-      { name: 'X-Axis', data: [] },
-      { name: 'Y-Axis', data: [] },
-      { name: 'Z-Axis', data: [] }
-    ]
+      { name: 'X-Axis', data: [], color: '#7cb5ec' },
+      { name: 'Y-Axis', data: [], color: '#FFB511' },
+      { name: 'Z-Axis', data: [], color: '#90ed7d' }
+    ],  
+     credits: { enabled: false },
+     chart:{
+      backgroundColor: '#1F2937',
+    },
+    legend: {
+      itemStyle: {
+        color: '#FFFFFF',
+      },
+      itemHoverStyle: {
+        color: '#FFB511',
+      },
+      itemHiddenStyle: {
+        color: '#666',
+      },
+    },
   });
 
   useEffect(() => {
