@@ -214,24 +214,75 @@ void loop(){
 
 
 
-  if (launch_flag == false) {
-    if (rise_counter > 10 && pre_alt - Alt < 0) {
-      launch_flag = true;
-      stage = 1;
+  // if (launch_flag == false) {
+  //   if (rise_counter > 10 && pre_alt - Alt < 0) {
+  //     launch_flag = true;
+  //     stage = 1;
 
-      // HWSERIAL.println("Launch Detected\n\n\n\n\n\n\n\n\n\n\n");
-      writeSD("Launch Detected!");
+  //     // HWSERIAL.println("Launch Detected\n\n\n\n\n\n\n\n\n\n\n");
+  //     writeSD("Launch Detected!");
 
-    } else if (pre_alt - Alt < 0) {
-      rise_counter = rise_counter + 1;
-    } else {
-      rise_counter = 0;
+  //   } else if (pre_alt - Alt < 0) {
+  //     rise_counter = rise_counter + 1;
+  //   } else {
+  //     rise_counter = 0;
+  //   }
+  // } else if (launch_flag == true && drogue_flag == false) {
+  //   if (fall_counter > 3 && round(pre_alt) - round(Alt) > 0) {
+  //       drogue_flag = true;
+  //       stage = 2;
+
+  //       digitalWrite(drogue_1, HIGH);
+  //       delay(charge_delay);
+  //       digitalWrite(drogue_1, LOW);
+  //       writeSD("Primary Drogue Deployed");
+
+  //       delay(backup_delay);
+
+  //       digitalWrite(drogue_2, HIGH);
+  //       delay(charge_delay);
+  //       digitalWrite(drogue_2, LOW);
+  //       writeSD("Secondary Drogue Deployed");
+
+  //       // HWSERIAL.println("Drogue Deployed \n\n\n\n\n\n\n\n\n\n\n\n");
+  //   } else if (round(pre_alt) - round(Alt) > 0) {
+  //       fall_counter = fall_counter + 1;
+  //   } else {
+  //       fall_counter = 0;
+  //   }
+  // } else if (launch_flag == true && main_flag == false && drogue_flag == true) {
+  //   if (Alt < (startAlt+304.8)) {
+  //     main_flag = true;
+  //     stage = 3;
+
+  //     digitalWrite(main_1, HIGH);
+  //     delay(charge_delay);
+  //     digitalWrite(main_1, LOW);
+  //     writeSD("Primary Main Deployed");
+  //     delay(backup_delay);
+
+  //     digitalWrite(main_2, HIGH);
+  //     delay(charge_delay);
+  //     digitalWrite(main_2, LOW);
+  //     writeSD("Secondary Main Deployed");
+      
+  //     // HWSERIAL.println("Main Deployed \n\n\n\n\n\n\n");
+  //   }
+  // }
+
+    if (!launch_flag) {
+      if (rise_counter > 10 && (pre_alt - Alt < 0 )) {
+        launch_flag = true;
+        writeSD("LAUNCHED");        
+      } else if (pre_alt - Alt < 0 ) {
+        rise_counter++;
+      } else {
+        rise_counter = 0;
+      }
     }
-  } else if (launch_flag == true && drogue_flag == false) {
-    if (fall_counter > 3 && round(pre_alt) - round(Alt) > 0) {
+    if (!drogue_flag) {
+      if ((pre_alt - Alt > 0.1) && (Alt > 2000)) {
         drogue_flag = true;
-        stage = 2;
-
         digitalWrite(drogue_1, HIGH);
         delay(charge_delay);
         digitalWrite(drogue_1, LOW);
@@ -243,32 +294,25 @@ void loop(){
         delay(charge_delay);
         digitalWrite(drogue_2, LOW);
         writeSD("Secondary Drogue Deployed");
+      }
+    
+    if (!main_flag) {
+      if ((Alt >= 200 + startAlt) && (Alt <= 308 + startAlt) && (pre_alt - Alt > 1)) { // 1 should be changed to terminal velocity
+        main_flag = true;
+        digitalWrite(main_1, HIGH);
+        delay(charge_delay);
+        digitalWrite(main_1, LOW);
+        writeSD("Primary Drogue Deployed");
 
-        // HWSERIAL.println("Drogue Deployed \n\n\n\n\n\n\n\n\n\n\n\n");
-    } else if (round(pre_alt) - round(Alt) > 0) {
-        fall_counter = fall_counter + 1;
-    } else {
-        fall_counter = 0;
+        delay(backup_delay);
+
+        digitalWrite(main_2, HIGH);
+        delay(charge_delay);
+        digitalWrite(main_2, LOW);
+        writeSD("Secondary Drogue Deployed");
+      }
     }
-  } else if (launch_flag == true && main_flag == false && drogue_flag == true) {
-    if (Alt < (startAlt+304.8)) {
-      main_flag = true;
-      stage = 3;
-
-      digitalWrite(main_1, HIGH);
-      delay(charge_delay);
-      digitalWrite(main_1, LOW);
-      writeSD("Primary Main Deployed");
-      delay(backup_delay);
-
-      digitalWrite(main_2, HIGH);
-      delay(charge_delay);
-      digitalWrite(main_2, LOW);
-      writeSD("Secondary Main Deployed");
-      
-      // HWSERIAL.println("Main Deployed \n\n\n\n\n\n\n");
-    }
-  }
+        
 
   pre_alt = Alt;
 
@@ -326,4 +370,4 @@ void loop(){
 
     }
   
-  } }
+  } } }
