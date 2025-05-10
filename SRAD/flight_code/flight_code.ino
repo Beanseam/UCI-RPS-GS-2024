@@ -57,8 +57,8 @@ float Quaternion_4 = 0;
 
 // Declare rocket stage detection variables
 const int delay_time = 10;
-const int charge_delay = 2000; //500
-const int backup_delay = 4000; //2500
+const int charge_delay = 500;
+const int backup_delay = 500; 
 bool launch_flag = 0;
 bool drogue_flag = 0;
 bool main_flag = 0;
@@ -281,7 +281,7 @@ void loop(){
       }
     }
     if (!drogue_flag) {
-      if ((pre_alt - Alt > 0.1) && (Alt > 2000)) {
+      if ((pre_alt - Alt > 0.1) && (Alt > 2000)) { // Check pre_alt - Alt > 0.1 twice. 
         drogue_flag = true;
         digitalWrite(drogue_1, HIGH);
         delay(charge_delay);
