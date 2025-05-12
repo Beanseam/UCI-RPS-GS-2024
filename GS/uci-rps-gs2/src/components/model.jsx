@@ -48,41 +48,12 @@ export default function ThreeScene({ quaternion: parentQuaternion = { x: 0, y: 0
 
   return (
     <div>
-      <Canvas style={{ width: '50vw', height: '50vh' }} camera={{ position: [25, 30, 100], fov: 50 }}>
+      <Canvas style={{ width: '30vw', height: '40vh' }} camera={{ position: [25, 30, 100], fov: 50 }}>
         <ambientLight intensity={1} />
         <directionalLight position={[5, 5, 5]} />
         <axesHelper args={[50]} />
         <Rocket quaternion={quaternion} />
       </Canvas>
-      
-      <div className="controls">
-        <h3>Update Quaternion Values:</h3>
-        <label>
-          X: <input type="number" step="0.01" value={quaternion.x} 
-            onChange={(e) => setQuaternion(prev => ({ ...prev, x: parseFloat(e.target.value) || 0 }))} />
-        </label>
-        <label>
-          Y: <input type="number" step="0.01" value={quaternion.z} 
-            onChange={(e) => setQuaternion(prev => ({ ...prev, z: parseFloat(e.target.value) || 0 }))} />
-        </label>
-        <label>
-          Z: <input type="number" step="0.01" value={quaternion.y} 
-            onChange={(e) => setQuaternion(prev => ({ ...prev, y: parseFloat(e.target.value) || 0 }))} />
-        </label>
-        <label>
-          W: <input type="number" step="0.01" value={quaternion.w} 
-            onChange={(e) => setQuaternion(prev => ({ ...prev, w: parseFloat(e.target.value) || 1 }))} />
-        </label>
-      </div>
-
-      {/* Display quaternion values */}
-      <div className="quaternion-display">
-        <h3>Current Quaternion Values:</h3>
-        <p>X: {quaternion.x.toFixed(4)}</p>
-        <p>Y: {quaternion.z.toFixed(4)}</p>
-        <p>Z: {quaternion.y.toFixed(4)}</p>
-        <p>W: {quaternion.w.toFixed(4)}</p>
-      </div>
     </div>
   );
 }

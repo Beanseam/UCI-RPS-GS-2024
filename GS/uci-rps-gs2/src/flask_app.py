@@ -94,10 +94,17 @@ def read_test():
             noisy_mag = lambda: random.uniform(-50, 50)
 
             # Simulate orientation change using sin/cos wave for quaternions
-            q1 = math.cos(t/5)
-            q2 = math.sin(t/5)
-            q3 = 0.0
-            q4 = 0.0
+            if altitude!=0:
+
+                next_alt=10
+                if altitude>next_alt:
+                    q1+=0.05
+                    next_alt+=15
+            if altitude==0:
+                q1 = 0.0                     # x
+                q2 = 0.0                     # y
+                q3 = 0.0     # z
+                q4 = 1     # w
 
             test_data['temperature'] = noisy_temp
             test_data['pressure'] = noisy_pressure
@@ -142,6 +149,7 @@ def read_serial(serial_port, baudrate):
         while True:
             line = ser.readline().decode("utf-8").strip()
             data_list = line.split(',')
+            print (data_list)
             with sensor_data_lock:
                 sensor_data['temperature'] = data_list[0]
                 sensor_data['press'] = data_list[1]
@@ -160,10 +168,10 @@ def read_serial(serial_port, baudrate):
                         'z': data_list[11]
                 }
                 sensor_data['quaternion'] = {
-                        '1': data_list[12],
-                        '2': data_list[13],
-                        '3': data_list[14],
-                        '4': data_list[15]
+                        'x': data_list[12],
+                        'y': data_list[13],
+                        'z': data_list[14],
+                        'w': data_list[15]
                 }
                 sensor_data['timestamp'] = datetime.datetime.now()
             csv.write_to_csv(csv.flatten_data(sensor_data))
