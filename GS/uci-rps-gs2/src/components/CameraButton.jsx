@@ -52,7 +52,8 @@ export default function CameraButton( ) {
         padding: "0",
       }}
     >
-        Camera On/Off
+        Camera is {(!isOn)? "Off" : "On"}
+      
     </button>
   );
 }

@@ -4,14 +4,28 @@ import Highcharts from 'highcharts';
 
 const GyroGraph = ({ timeData = [], gyroDataX = [], gyroDataY = [], gyroDataZ = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    title: { text: 'Angular Speed (rad/s) vs. Time' },
-    xAxis: { title: { text: 'Time (min)' } },
-    yAxis: { title: { text: 'Angular Speed (rad/s)' } },
+    title: { text: 'Angular Speed (rad/s) vs. Time' , style:{color:'#FFFFFF'}},
+    xAxis: { title: { text: 'Time (min)' , style:{color:'#FFFFFF'}} },
+    yAxis: { title: { text: 'Angular Speed (rad/s)' , style:{color:'#FFFFFF'}} },
     series: [
-      { name: 'X-Axis', data: [] },
-      { name: 'Y-Axis', data: [] },
-      { name: 'Z-Axis', data: [] }
-    ]
+      { name: 'X-Axis', data: [], color: '#7cb5ec' },
+      { name: 'Y-Axis', data: [], color: '#FFB511' },
+      { name: 'Z-Axis', data: [], color: '#90ed7d' }
+    ], chart:{
+      backgroundColor: '#1F2937',
+    },
+    credits: { enabled: false },
+    legend: {
+      itemStyle: {
+        color: '#FFFFFF',
+      },
+      itemHoverStyle: {
+        color: '#FFB511',
+      },
+      itemHiddenStyle: {
+        color: '#666',
+      },
+    },
   });
 
   useEffect(() => {

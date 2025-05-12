@@ -4,65 +4,46 @@ import Highcharts from 'highcharts';
 
 const AltitudeChart = ({ timeData = [], altData = [] }) => {
   const [chartOptions, setChartOptions] = useState({
-    chart: {
-      backgroundColor: '#1e1e1e',
+
+    title: { text: 'Altitude (ft) vs. Time' , style:{color:'#FFFFFF'} },
+    xAxis: { 
+      title: { 
+        text: 'Time (min)'  , 
+        style:{color:'#FFFFFF'}
+      },
+      gridLineWidth: 1,
+      gridLineColor: '#444',
+      tickInterval: 1
+    },
+    yAxis: { 
+      title: { 
+        text: 'Altitude (ft)', 
+        style:{color:'#FFFFFF'} 
+      },    
+      gridLineWidth: 1,
+      gridLineColor: '#444',
+      tickInterval: 1
+   },
+    series: [{ name: 'Altitude', data: [] }],
+    credits: { enabled: false },
+    chart:{
+      backgroundColor: '#1F2937',
       style: {
         fontFamily: 'Arial, sans-serif',
       },
     },
-    title: {
-      text: 'Altitude (ft) vs. Time',
-      style: {
-        color: '#ffffff'
-      }
-    },
-    xAxis: {
-      title: {
-        text: 'Time (min)',
-        style: {
-          color: '#ffffff'
-        }
-      },
-      gridLineWidth: 1,
-      gridLineColor: '#444',
-      labels: {
-        style: {
-          color: '#ffffff'
-        }
-      },
-      tickInterval: 1
-    },
-    yAxis: {
-      title: {
-        text: 'Altitude (ft)',
-        style: {
-          color: '#ffffff'
-        }
-      },
-      gridLineWidth: 1,
-      gridLineColor: '#444',
-      labels: {
-        style: {
-          color: '#ffffff'
-        }
-      },
-      tickInterval: 100 // adjust this based on your altitude scale
-    },
     legend: {
       itemStyle: {
-        color: '#ffffff'
-      }
+        color: '#FFFFFF',
+      },
+      itemHoverStyle: {
+        color: '#FFB511',
+      },
+      itemHiddenStyle: {
+        color: '#666',
+      },
     },
-    tooltip: {
-      style: {
-        color: '#ffffff'
-      }
-    },
-    series: [{
-      name: 'Altitude',
-      data: [],
-      color: '#00ffcc' // optional: set line color
-    }]
+
   });
 
   useEffect(() => {
