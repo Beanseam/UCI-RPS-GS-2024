@@ -56,12 +56,22 @@ function App() {
           mag_x: [...prevData.mag_x, parseFloat(dataString['mag']['x'])],
           mag_y: [...prevData.mag_y, parseFloat(dataString['mag']['y'])],
           mag_z: [...prevData.mag_z, parseFloat(dataString['mag']['z'])],
-          quat: {
-            x: parseFloat(dataString['quaternion']['1']),
-            y: parseFloat(dataString['quaternion']['3']),
-            z: parseFloat(dataString['quaternion']['2']),
-            w: parseFloat(dataString['quaternion']['4'])
-          },
+          
+          // quat: {
+          //   x: parseFloat(dataString['quaternion']['1']),
+          //   y: parseFloat(dataString['quaternion']['3']),
+          //   z: parseFloat(dataString['quaternion']['2']),
+          //   w: parseFloat(dataString['quaternion']['4'])
+          // },
+          
+          quat: prevData.alt.length % 3 === 0
+            ? {
+                x: parseFloat(dataString['quaternion']['1']),
+                y: parseFloat(dataString['quaternion']['3']),
+                z: parseFloat(dataString['quaternion']['2']),
+                w: parseFloat(dataString['quaternion']['4'])
+              }
+            : prevData.quat,
           state: [...prevData.state, 0],
           time: [...prevData.time, new Date(dataString['timestamp']).getTime()]
         }));
