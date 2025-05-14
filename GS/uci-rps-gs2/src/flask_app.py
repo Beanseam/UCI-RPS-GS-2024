@@ -165,6 +165,8 @@ def read_serial(serial_port, baudrate):
                         '3': data_list[14],
                         '4': data_list[15]
                 }
+                if(len(data_list) > 16):
+                    sensor_data['camera'] = data_list[16]
                 sensor_data['timestamp'] = datetime.datetime.now()
             csv.write_to_csv(csv.flatten_data(sensor_data))
             print(sensor_data['acceleration'])
