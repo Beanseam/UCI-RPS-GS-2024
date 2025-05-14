@@ -127,7 +127,7 @@ def read_test():
                 '3': q3,
                 '4': q4
             }
-            test_data['timestamp'] = datetime.datetime.now().isoformat()
+            #test_data['timestamp'] = datetime.datetime.now().isoformat()
 
         time.sleep(dt)
         t += dt
@@ -153,7 +153,7 @@ def read_serial(serial_port, baudrate):
             if len(data_list)<19:
                 continue
             with sensor_data_lock:
-                print(data_list)
+                #print(data_list)
                 sensor_data['temperature'] = data_list[0]
                 sensor_data['press'] = data_list[1]
                 sensor_data['altitude'] = data_list[2]
@@ -182,8 +182,9 @@ def read_serial(serial_port, baudrate):
                         '4': data_list[18]
                 }
 
-                sensor_data['timestamp'] = datetime.datetime.now()
-            csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
+                sensor_data['timestamp'] = datetime.datetime.now().isoformat()
+            time.sleep(0.3)
+            #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
             
             
     except serial.SerialException as e:
@@ -275,6 +276,6 @@ if __name__ == '__main__':
         start_test_thread()
     else:
         start_serial_thread()
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
     
     
