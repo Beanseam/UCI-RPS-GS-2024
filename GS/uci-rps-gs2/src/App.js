@@ -41,7 +41,7 @@ function App() {
       try {
         setSensorData(prevData => ({
           ...prevData,
-          temp: [...prevData.temp, parseInt(dataString['temperature'])],
+           temp: [...prevData.temp, parseInt(dataString['temperature'])],
           pres: [...prevData.pres, parseInt(dataString['pressure'])],
           alt: [...prevData.alt, parseInt(dataString['altitude'])],
           acc_x_2: [...prevData.acc_x_2, parseFloat(dataString['acceleration']['x2'])],
@@ -56,12 +56,21 @@ function App() {
           mag_x: [...prevData.mag_x, parseFloat(dataString['mag']['x'])],
           mag_y: [...prevData.mag_y, parseFloat(dataString['mag']['y'])],
           mag_z: [...prevData.mag_z, parseFloat(dataString['mag']['z'])],
-          quat: {
-            x: parseFloat(dataString['quaternion']['1']),
+          // quat: {
+          //   x: parseFloat(dataString['quaternion']['1']),
+          //   y: parseFloat(dataString['quaternion']['3']),
+          //   z: parseFloat(dataString['quaternion']['2']),
+          //   w: parseFloat(dataString['quaternion']['4'])
+          // },
+          
+          quat: prevData.alt.length % 3 === 0
+            ? {
+                x: parseFloat(dataString['quaternion']['1']),
             y: parseFloat(dataString['quaternion']['3']),
             z: parseFloat(dataString['quaternion']['2']),
             w: parseFloat(dataString['quaternion']['4'])
-          },
+              }
+            : prevData.quat,
           state: [...prevData.state, 0],
           time: [...prevData.time, new Date(dataString['timestamp']).getTime()]
         }));
@@ -194,7 +203,15 @@ function App() {
             magDataY={sensorData['mag_y']}
             magDataZ={sensorData['mag_z']}
             />
-            <div className="text-center pr-10">
+            <Model quaternion={sensorData?.['quat']} />
+          </div>
+          
+        </div>
+      </main>
+
+      <footer className="flex flex-row justify-center items-center bg-gray-800 text-white p-4 flex">
+        <div className="justify-center">
+          <div className="text-center pr-10">
               <p className="text-lg text-white">
               Time: {sensorData?.['time']?.at(-1) !== undefined ? ((sensorData['time'].at(-1)-sensorData['time'].at(0))/1000/60).toFixed(2) : 'N/A'} |
               Altitude: {sensorData?.['alt']?.at(-1) !== undefined ? sensorData['alt'].at(-1).toFixed(2) : 'N/A'} |
@@ -241,14 +258,6 @@ function App() {
               </table>
               <CameraButton/>
             </div>
-          </div>
-          
-        </div>
-      </main>
-
-      <footer className="flex flex-row justify-center items-center bg-gray-800 text-white p-4 flex">
-        <div className="justify-center">
-          <Model quaternion={sensorData?.['quat']} />
         </div>
       </footer>
     </body>
