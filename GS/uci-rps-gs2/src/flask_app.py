@@ -14,10 +14,9 @@ import math
 import time
 
 
-
 SERIAL_PORT = 'COM6'
 #/dev/tty.usbserial-B000J0YT for MAC
-SERIAL_BAUDRATE = 115200 #57600
+SERIAL_BAUDRATE = 57600 #57600
 sensor_data_lock = threading.Lock()
 test_lock = threading.Lock()
 app = Flask(__name__)
@@ -128,7 +127,7 @@ def read_test():
                 '3': q3,
                 '4': q4
             }
-            test_data['timestamp'] = datetime.datetime.now().isoformat()
+            #test_data['timestamp'] = datetime.datetime.now().isoformat()
 
         time.sleep(dt)
         t += dt
@@ -142,15 +141,20 @@ def read_serial(serial_port, baudrate):
         ser = serial.Serial(serial_port, baudrate) # for Windows
     except serial.SerialException as e:
         print(f"read_serial Error: {e}")
-        #print(f"Error: {e}")
+        
         sys.exit(1)
 
     try:
         while True:
+
             line = ser.readline().decode("utf-8").strip()
+            
             data_list = line.split(',')
-            print (data_list)
+
+            if len(data_list)<19:
+                continue
             with sensor_data_lock:
+                #print(data_list)
                 sensor_data['temperature'] = data_list[0]
                 sensor_data['press'] = data_list[1]
                 sensor_data['altitude'] = data_list[2]
@@ -162,27 +166,36 @@ def read_serial(serial_port, baudrate):
                         'y': data_list[7],
                         'z': data_list[8]
                 }
-                sensor_data['mag'] = {
+                sensor_data['gyro'] ={
                         'x': data_list[9],
                         'y': data_list[10],
                         'z': data_list[11]
                 }
-                sensor_data['quaternion'] = {
+                sensor_data['mag'] = {
                         'x': data_list[12],
                         'y': data_list[13],
-                        'z': data_list[14],
-                        'w': data_list[15]
+                        'z': data_list[14]
                 }
-                if(len(data_list) > 16):
-                    sensor_data['camera'] = data_list[16]
-                sensor_data['timestamp'] = datetime.datetime.now()
-            csv.write_to_csv(csv.flatten_data(sensor_data))
-            print(sensor_data['acceleration'])
-            
+                sensor_data['quaternion'] = {
+
+                        '1': data_list[15],
+                        '2': data_list[16],
+                        '3': data_list[17],
+                        '4': data_list[18]
+                }
+
+                sensor_data['timestamp'] = datetime.datetime.now().isoformat()
+                #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
+#                  if(len(data_list) > 16):
+#                   sensor_data['camera'] = data_list[16]
+            time.sleep(0.3)
+           
+             
+          
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
     except Exception as e:
-        print("Error: {e}")
+        print(f"Error: {e}")
     finally:
         ser.close()
   
@@ -268,6 +281,8 @@ if __name__ == '__main__':
         start_test_thread()
     else:
         start_serial_thread()
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True)
+
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
+
     
     

@@ -25,7 +25,7 @@ function App() {
   });
   
   const socketRef = io("http://localhost:5000");
-  const USE_TEST_MODE = true; // switch to false for real sensor data
+  const USE_TEST_MODE = false; // switch to false for real sensor data
   
   useEffect(() => {
 
@@ -37,7 +37,7 @@ function App() {
   
     socketRef.on("json_response", (dataString) => {
       console.log(dataString);
-      if (dataString){
+      if (Object.keys(dataString).length !=0 ){
       try {
         setSensorData(prevData => ({
           ...prevData,
@@ -50,9 +50,9 @@ function App() {
           acc_x: [...prevData.acc_x, parseFloat(dataString['acceleration']['x'])],
           acc_y: [...prevData.acc_y, parseFloat(dataString['acceleration']['y'])],
           acc_z: [...prevData.acc_z, parseFloat(dataString['acceleration']['z'])],
-          gyro_x: [...prevData.gyro_x, 0], 
-          gyro_y: [...prevData.gyro_y, 0],
-          gyro_z: [...prevData.gyro_z, 0],
+          gyro_x: [...prevData.gyro_x, parseFloat(dataString['gyro']['x'])], 
+          gyro_y: [...prevData.gyro_y, parseFloat(dataString['gyro']['y'])],
+          gyro_z: [...prevData.gyro_z, parseFloat(dataString['gyro']['z'])],
           mag_x: [...prevData.mag_x, parseFloat(dataString['mag']['x'])],
           mag_y: [...prevData.mag_y, parseFloat(dataString['mag']['y'])],
           mag_z: [...prevData.mag_z, parseFloat(dataString['mag']['z'])],
