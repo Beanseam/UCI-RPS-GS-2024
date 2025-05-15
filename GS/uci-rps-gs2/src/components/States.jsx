@@ -16,7 +16,7 @@ export default class Container extends React.Component {
         root.style.setProperty(`--state-${active}`, 'red');
         root.style.setProperty(`--text-${active}`, 'white');
       } else {
-        console.warn('State out of bounds:', active);
+        //console.warn('State out of bounds:', active);
       }
     }
   }
