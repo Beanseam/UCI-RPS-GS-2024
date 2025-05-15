@@ -186,7 +186,7 @@ def read_serial(serial_port, baudrate):
                 #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
 #                  if(len(data_list) > 16):
 #                   sensor_data['camera'] = data_list[16]
-            socketio.emit('json_response_serial', current_data)
+            socketio.emit('json_response', current_data)
 
            
              
@@ -253,20 +253,26 @@ def send_data():
         state = request.json["state"]
         response = None
         if state == "on":
+            print("Camera On")
             send_command("ON")
         elif state == "off":
+            print("Camera Off")
             send_command("OFF")
 
         elif state == "MP":
+            print("MP fired")
             send_command("Fire Main P")
 
         elif state == "MS":
+            print("MS fired")
             send_command("Fire Main S")
 
         elif state == "DP":
+            print("DP fired")
             send_command("Fire Drogue P")
 
         elif state == "DS":
+            print("DS Fired")
             send_command("Fire Drogue S")
         return jsonify({"status" : "OK", "state": state})
     except Exception as e:
