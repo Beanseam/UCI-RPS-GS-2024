@@ -104,31 +104,31 @@ def read_test():
                 q2 = 0.0                     # y
                 q3 = 0.0     # z
                 q4 = 1     # w
-
-            test_data['temperature'] = noisy_temp
-            test_data['pressure'] = noisy_pressure
-            test_data['altitude'] = max(0.0, altitude)
-            test_data['acceleration'] = {
-                'x2': random.uniform(-1, 1),
-                'y2': random.uniform(-1, 1),
-                'z2': acceleration_z + random.uniform(-0.5, 0.5),
-                'x': random.uniform(-0.2, 0.2),
-                'y': random.uniform(-0.2, 0.2),
-                'z': acceleration_z
-            }
-            test_data['mag'] = {
-                'x': noisy_mag(),
-                'y': noisy_mag(),
-                'z': noisy_mag()
-            }
-            test_data['quaternion'] = {
-                '1': q1,
-                '2': q2,
-                '3': q3,
-                '4': q4
-            }
-            #test_data['timestamp'] = datetime.datetime.now().isoformat()
-
+            with test_lock:
+                test_data['temperature'] = noisy_temp
+                test_data['pressure'] = noisy_pressure
+                test_data['altitude'] = max(0.0, altitude)
+                test_data['acceleration'] = {
+                    'x2': random.uniform(-1, 1),
+                    'y2': random.uniform(-1, 1),
+                    'z2': acceleration_z + random.uniform(-0.5, 0.5),
+                    'x': random.uniform(-0.2, 0.2),
+                    'y': random.uniform(-0.2, 0.2),
+                    'z': acceleration_z
+                }
+                test_data['mag'] = {
+                    'x': noisy_mag(),
+                    'y': noisy_mag(),
+                    'z': noisy_mag()
+                }
+                test_data['quaternion'] = {
+                    '1': q1,
+                    '2': q2,
+                    '3': q3,
+                    '4': q4
+                }
+                test_data['timestamp'] = datetime.datetime.now().isoformat()
+            socketio.emit('json_response', test_data)
         time.sleep(dt)
         t += dt
 
@@ -138,57 +138,56 @@ def read_serial(serial_port, baudrate):
     print('Reading serial data...')
 
     try: 
-        ser = serial.Serial(serial_port, baudrate) # for Windows
+        ser = serial.Serial(serial_port, baudrate, timeout=1) # for Windows
     except serial.SerialException as e:
         print(f"read_serial Error: {e}")
-        
-        sys.exit(1)
-
+        return
+    print("Serial data reading thread started.")
     try:
         while True:
-
-            line = ser.readline().decode("utf-8").strip()
+            raw_line = ser.readline()
+            if not raw_line:
+                time.sleep(0.01)
+                continue
+            line = raw_line.decode("utf-8", errors='ignore').strip()
             
             data_list = line.split(',')
 
             if len(data_list)<19:
                 continue
+            try:
+                current_data = {
+                    'temperature': float(data_list[0]),
+                    'press': float(data_list[1]), 
+                    'altitude': float(data_list[2]),
+                    'acceleration': {
+                        'x2': float(data_list[3]), 'y2': float(data_list[4]), 'z2': float(data_list[5]),
+                        'x': float(data_list[6]), 'y': float(data_list[7]), 'z': float(data_list[8])
+                    },
+                    'gyro': {
+                        'x': float(data_list[9]), 'y': float(data_list[10]), 'z': float(data_list[11])
+                    },
+                    'mag': {
+                        'x': float(data_list[12]), 'y': float(data_list[13]), 'z': float(data_list[14])
+                    },
+                    'quaternion': {
+                        '1': float(data_list[15]), '2': float(data_list[16]),
+                        '3': float(data_list[17]), '4': float(data_list[18])
+                    },
+                    'timestamp': datetime.datetime.now().isoformat()
+                }
+                #print(f"Data: {current_data}")
+            except ValueError as e:
+                print(f"ValueError: {e} - Line: {line} - len: {len(data_list)}")
+                continue
+
             with sensor_data_lock:
-                #print(data_list)
-                sensor_data['temperature'] = data_list[0]
-                sensor_data['press'] = data_list[1]
-                sensor_data['altitude'] = data_list[2]
-                sensor_data['acceleration'] = {
-                        'x2': data_list[3],
-                        'y2': data_list[4],
-                        'z2': data_list[5],
-                        'x': data_list[6],
-                        'y': data_list[7],
-                        'z': data_list[8]
-                }
-                sensor_data['gyro'] ={
-                        'x': data_list[9],
-                        'y': data_list[10],
-                        'z': data_list[11]
-                }
-                sensor_data['mag'] = {
-                        'x': data_list[12],
-                        'y': data_list[13],
-                        'z': data_list[14]
-                }
-                sensor_data['quaternion'] = {
-
-                        '1': data_list[15],
-                        '2': data_list[16],
-                        '3': data_list[17],
-                        '4': data_list[18]
-                }
-
-                sensor_data['timestamp'] = datetime.datetime.now().isoformat()
+                sensor_data = current_data
                 #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
 #                  if(len(data_list) > 16):
 #                   sensor_data['camera'] = data_list[16]
-            time.sleep(0.3)
+            socketio.emit('json_response_serial', current_data)
+
            
              
           
@@ -197,65 +196,62 @@ def read_serial(serial_port, baudrate):
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        ser.close()
+        if ser.is_open:
+            print("Closing serial port.")
+            ser.close()
   
 
 @socketio.on('connect')
 def connect():
-    print('Client connected')
+    print(f'Client connected {request.sid}')
     socketio.emit('Connected', {'data': 'Connected to server'})
     
-@socketio.on('data')
-def get_data():
-    global sensor_data
-    if not sensor_data:
-        socketio.emit('Error', {"error": "No data available"})
-    while True:
-        time.sleep(0.1)
-        with sensor_data_lock:
-            socketio.emit('json_response', sensor_data)
-
-@app.route('/data', methods=['GET'])
-def get_data_api():
-    global sensor_data
-    if not sensor_data:
-        return jsonify({"error": "No data available"})
-    with sensor_data_lock:
-        return jsonify(sensor_data)
-
-@socketio.on('test')
-def get_test_data():
-    print('test socket')
-    global test_data
-    if not test_data:
-        socketio.emit('Error', {"error": "No data available"})
-    while True:
-        time.sleep(0.1)
-        with sensor_data_lock:
-            socketio.emit('json_response', test_data)
+@socketio.on('disconnect')
+def disconnect():
+    print(f'Client disconnected {request.sid}')
+    socketio.emit('Disconnected', {'data': 'Disconnected from server'})
 
 @app.route('/test', methods=['GET'])
-def get_test_data_api():
+def get_data_api():
     global test_data
-    if not test_data:
-        return jsonify({"error": "No data available"})
+
+    data_copy = None
     with test_lock:
-        return jsonify(test_data)
+        data_copy = test_data.copy()
+    if not data_copy:
+        return jsonify({"error": "No data available"})
+    return jsonify(data_copy)
+
+@app.route('/data', methods=['GET'])
+def get_test_data_api():
+    global sensor_data
+   
+    data_copy = None
+    with sensor_data_lock:
+        data_copy = sensor_data.copy()
+
+    if not data_copy: return jsonify({"error": "No data available"})
+    return jsonify(data_copy)
 
 def send_command(command):
     try:
         with serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE) as ser:
             print(f"Sending command: {command}")
             ser.write(command.encode())
-            # ser.flush()
+            return True
+    except serial.SerialException as e_ser:
+        print(f"Serial error sending command to {SELECTED_SERIAL_PORT}: {e_ser}")
+        return False
     except Exception as e:
         print(f"Error: {e}")
+        return False
 
 @app.route('/camera', methods=['POST'])
 def send_data():
    # print("Received POST request")
     try:
         state = request.json["state"]
+        response = None
         if state == "on":
             send_command("ON")
         elif state == "off":
@@ -290,7 +286,7 @@ def start_test_thread():
 if __name__ == '__main__':
     SERIAL_PORT = select_port()
     if SERIAL_PORT is None:
-        start_test_thread()
+        start_test_thread()     
     else:
         start_serial_thread()
 
