@@ -247,6 +247,7 @@ def send_command(command):
         return False
 
 @app.route('/camera', methods=['POST'])
+@app.route('/camera', methods=['POST'])
 def send_data():
    # print("Received POST request")
     try:
