@@ -251,15 +251,27 @@ def send_command(command):
     except Exception as e:
         print(f"Error: {e}")
 
-@app.route('/send', methods=['POST'])
+@app.route('/camera', methods=['POST'])
 def send_data():
    # print("Received POST request")
     try:
         state = request.json["state"]
         if state == "on":
-            send_command("1")
+            send_command("ON")
         elif state == "off":
-            send_command("2")
+            send_command("OFF")
+
+        elif state == "MP":
+            send_command("Fire Main P")
+
+        elif state == "MS":
+            send_command("Fire Main S")
+
+        elif state == "DP":
+            send_command("Fire Drogue P")
+
+        elif state == "DS":
+            send_command("Fire Drogue S")
         return jsonify({"status" : "OK", "state": state})
     except Exception as e:
         return jsonify({"status": "Error", "error": str(e)})

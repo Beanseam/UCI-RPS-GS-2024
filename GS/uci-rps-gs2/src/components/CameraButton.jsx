@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-export default function CameraButton( ) {
+
+export default function CameraButton() {
   const [isOn, setIsOn] = useState(false);
+  const [MP, setMPFired] = useState(false);
+  const [MS, setMSFired] = useState(false);
+  const [DP, setDPFired] = useState(false);
+  const [DS, setDSFired] = useState(false);
   const onClick = async() => {
     let res;
     if(!isOn){
@@ -38,22 +43,85 @@ export default function CameraButton( ) {
     }
 
   };
+const handleButtonClick = async (stateName, isActive, setActive) => {
+  const res = await fetch('http://localhost:5000/camera', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ state: `${stateName}` }), // directly send MP, MS, DP, or DS
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP error! Status: ${res.status}`);
+  } else {
+    const data = await res.json();
+    setActive(true); // always set to true after firing
+  }
+};
 
   return (
-    
-    
-    <button
-      className="camera-button"
-      onClick={onClick}
-      style={{
-        backgroundColor: (isOn)? "green" : "red",
-        border: "none",
-        cursor: "pointer",
-        padding: "0",
-      }}
-    >
-        Camera is {(!isOn)? "Off" : "On"}
-      
-    </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <button
+        className="camera-button"
+        onClick={onClick}
+        style={{
+          backgroundColor: isOn ? "green" : "red",
+          border: "none",
+          cursor: "pointer",
+          padding: "10px",
+        }}
+      >
+        Camera is {isOn ? "On" : "Off"}
+      </button>
+
+      <button
+        className="camera-button"
+        onClick={() => handleButtonClick("MP", MP, setMPFired)}
+        style={{
+          border: "none",
+          cursor: "pointer",
+          padding: "10px",
+        }}
+      >
+        Main Primary is {MP ? "Fired" : "Not Fired"}
+      </button>
+
+      <button
+        className="camera-button"
+        onClick={() => handleButtonClick("MS", MS, setMSFired)}
+        style={{
+          border: "none",
+          cursor: "pointer",
+          padding: "10px",
+        }}
+      >
+        Main Secondary is {MS ? "Fired" : "Not Fired"}
+      </button>
+
+      <button
+        className="camera-button"
+        onClick={() => handleButtonClick("DP", DP, setDPFired)}
+        style={{
+          border: "none",
+          cursor: "pointer",
+          padding: "10px",
+        }}
+      >
+        Drogue Primary is {DP ? "Fired" : "Not Fired"}
+      </button>
+
+      <button
+        className="camera-button"
+        onClick={() => handleButtonClick("DS", DS, setDSFired)}
+        style={{
+          border: "none",
+          cursor: "pointer",
+          padding: "10px",
+        }}
+      >
+        Drogue Secondary is {DS ? "Fired" : "Not Fired"}
+      </button>
+    </div>
   );
 }
