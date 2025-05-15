@@ -186,7 +186,6 @@ def read_serial(serial_port, baudrate):
             time.sleep(0.3)
             #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
             
-            
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
     except Exception as e:
