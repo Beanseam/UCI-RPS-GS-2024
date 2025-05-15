@@ -14,11 +14,13 @@
 #define main_2 10    // main secondary     
 #define drogue_1 12   // drogue primary
 #define drogue_2 9  // drogue secondary
-#define buzzer 39    // buzzer
+#define buzzer 25    // buzzer
 #define camera1 20 // camera1
-#define camera2 21 // camera2
+#define camera2 15 // camera2
+#define camera1_adc 21 //camera 1 adc
+#define camera2_adc 14 //camera 2 adc
 
-#define HWSERIAL Serial // Hardware Serial Needed for RF
+#define HWSERIAL Serial7 // Hardware Serial Needed for RF
 #define CAM_SERIAL Serial1 // Serial for Camera
 
 
@@ -57,48 +59,55 @@ float Quaternion_4 = 0;
 
 // Declare rocket stage detection variables
 const int delay_time = 10;
-const int charge_delay = 2000; //500
-const int backup_delay = 4000; //2500
+const int charge_delay = 500; //500
+const int backup_delay = 500; //2500
 bool launch_flag = 0;
 bool drogue_flag = 0;
 bool main_flag = 0;
+bool sdAvailable = false;
 int fall_counter = 0;
 int rise_counter = 0;
 float pre_alt = 0;
 int stage;
 
 void writeSD(String data) {
-  File dataFile = SD.open("rocket.csv", FILE_WRITE);  
-  if (dataFile) {
-    dataFile.println(data);
-    dataFile.close();
-  }
-  else {
-    Serial.println("Error Opening Data File.\n");
+  if (sdAvailable) {
+    File dataFile = SD.open("rocket.csv", FILE_WRITE);  
+    if (dataFile) {
+      dataFile.println(data);
+      dataFile.close();
+    } else {
+      Serial.println("Error Opening Data File.");
+    }
+  } else {
+    Serial.println("[LOG] " + data);  // Fallback log
   }
 }
 
 void setup() {
   Serial.begin(115200);
   // while (!Serial);
-
+  Serial.println("Running the Flight Computer\n");
+  
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   
   if (!SD.begin(BUILTIN_SDCARD)) {
-  // Serial.print("card failed, or not present.\n");
-  tone(buzzer, 3000, 5000);
-  exit(0);
-  }
+  Serial.println("SD card failed or not present.");
+  //tone(buzzer, 3000, 500);
+  sdAvailable = false;
+} else {
+  sdAvailable = true;
+}
 
-  HWSERIAL.begin(115200);//57600
+  HWSERIAL.begin(57600);
   CAM_SERIAL.begin(57600);
 
   pinMode(main_1, OUTPUT);
   pinMode(main_2, OUTPUT);
   pinMode(drogue_1, OUTPUT);
   pinMode(drogue_2, OUTPUT);
-  pinMode(buzzer, OUTPUT);
+  //pinMode(buzzer, OUTPUT);
   pinMode(camera1, OUTPUT);
   pinMode(camera2, OUTPUT);
 
@@ -109,7 +118,7 @@ void setup() {
   Serial.println("BMP390 Setup");
   if (!bmpModule.begin()){
     Serial.println("Could not find a valid BMP sensor");
-    while (1);
+    //while (1);
   }
 
 // LIS3DH Setup
@@ -143,7 +152,7 @@ void setup() {
 
   // Serial.println(startAlt);
   delay(1000);
-  tone(buzzer, 3100);
+  //tone(buzzer, 3100);
 }
   
 
@@ -182,9 +191,9 @@ void loop(){
         Accel_y = -LSM9DS1_data.accel_z;
         Accel_z = -LSM9DS1_data.accel_y;
 
-        Gyro_x = -LSM9DS1_data.gyro_x;
-        Gyro_y = -LSM9DS1_data.gyro_z;
-        Gyro_z = -LSM9DS1_data.gyro_y;
+        Gyro_x = -LSM9DS1_data.gyro_x + .0448;
+        Gyro_y = -LSM9DS1_data.gyro_z -.0283;
+        Gyro_z = -LSM9DS1_data.gyro_y + .0956;
 
         Mag_x = -LSM9DS1_data.mag_x;
         Mag_y = -LSM9DS1_data.mag_z;
@@ -214,24 +223,75 @@ void loop(){
 
 
 
-  if (launch_flag == false) {
-    if (rise_counter > 10 && pre_alt - Alt < 0) {
-      launch_flag = true;
-      stage = 1;
+  // if (launch_flag == false) {
+  //   if (rise_counter > 10 && pre_alt - Alt < 0) {
+  //     launch_flag = true;
+  //     stage = 1;
 
-      // HWSERIAL.println("Launch Detected\n\n\n\n\n\n\n\n\n\n\n");
-      writeSD("Launch Detected!");
+  //     // HWSERIAL.println("Launch Detected\n\n\n\n\n\n\n\n\n\n\n");
+  //     writeSD("Launch Detected!");
 
-    } else if (pre_alt - Alt < 0) {
-      rise_counter = rise_counter + 1;
-    } else {
-      rise_counter = 0;
+  //   } else if (pre_alt - Alt < 0) {
+  //     rise_counter = rise_counter + 1;
+  //   } else {
+  //     rise_counter = 0;
+  //   }
+  // } else if (launch_flag == true && drogue_flag == false) {
+  //   if (fall_counter > 3 && round(pre_alt) - round(Alt) > 0) {
+  //       drogue_flag = true;
+  //       stage = 2;
+
+  //       digitalWrite(drogue_1, HIGH);
+  //       delay(charge_delay);
+  //       digitalWrite(drogue_1, LOW);
+  //       writeSD("Primary Drogue Deployed");
+
+  //       delay(backup_delay);
+
+  //       digitalWrite(drogue_2, HIGH);
+  //       delay(charge_delay);
+  //       digitalWrite(drogue_2, LOW);
+  //       writeSD("Secondary Drogue Deployed");
+
+  //       // HWSERIAL.println("Drogue Deployed \n\n\n\n\n\n\n\n\n\n\n\n");
+  //   } else if (round(pre_alt) - round(Alt) > 0) {
+  //       fall_counter = fall_counter + 1;
+  //   } else {
+  //       fall_counter = 0;
+  //   }
+  // } else if (launch_flag == true && main_flag == false && drogue_flag == true) {
+  //   if (Alt < (startAlt+304.8)) {
+  //     main_flag = true;
+  //     stage = 3;
+
+  //     digitalWrite(main_1, HIGH);
+  //     delay(charge_delay);
+  //     digitalWrite(main_1, LOW);
+  //     writeSD("Primary Main Deployed");
+  //     delay(backup_delay);
+
+  //     digitalWrite(main_2, HIGH);
+  //     delay(charge_delay);
+  //     digitalWrite(main_2, LOW);
+  //     writeSD("Secondary Main Deployed");
+      
+  //     // HWSERIAL.println("Main Deployed \n\n\n\n\n\n\n");
+  //   }
+  // }
+
+    if (!launch_flag) {
+      if (rise_counter > 10 && (pre_alt - Alt < 0 )) {
+        launch_flag = true;
+        writeSD("LAUNCHED");        
+      } else if (pre_alt - Alt < 0 ) {
+        rise_counter++;
+      } else {
+        rise_counter = 0;
+      }
     }
-  } else if (launch_flag == true && drogue_flag == false) {
-    if (fall_counter > 3 && round(pre_alt) - round(Alt) > 0) {
+    if (!drogue_flag) {
+      if ((pre_alt - Alt > 0.1 && fall_counter >= 1) && (Alt - startAlt > 500)) {
         drogue_flag = true;
-        stage = 2;
-
         digitalWrite(drogue_1, HIGH);
         delay(charge_delay);
         digitalWrite(drogue_1, LOW);
@@ -243,53 +303,52 @@ void loop(){
         delay(charge_delay);
         digitalWrite(drogue_2, LOW);
         writeSD("Secondary Drogue Deployed");
-
-        // HWSERIAL.println("Drogue Deployed \n\n\n\n\n\n\n\n\n\n\n\n");
-    } else if (round(pre_alt) - round(Alt) > 0) {
+      }
+      else if ((pre_alt - Alt > 0.1)){
         fall_counter = fall_counter + 1;
-    } else {
+      }
+      else{
         fall_counter = 0;
+      }
     }
-  } else if (launch_flag == true && main_flag == false && drogue_flag == true) {
-    if (Alt < (startAlt+304.8)) {
-      main_flag = true;
-      stage = 3;
+    
+    if (!main_flag) {
+      if ((Alt >= 200 + startAlt) && (Alt <= 308 + startAlt) && (pre_alt - Alt > 1)) { // 1 should be changed to terminal velocity
+        main_flag = true;
+        digitalWrite(main_1, HIGH);
+        delay(charge_delay);
+        digitalWrite(main_1, LOW);
+        writeSD("Primary Main Deployed");
 
-      digitalWrite(main_1, HIGH);
-      delay(charge_delay);
-      digitalWrite(main_1, LOW);
-      writeSD("Primary Main Deployed");
+        delay(backup_delay);
 
-      delay(backup_delay);
-
-      digitalWrite(main_2, HIGH);
-      delay(charge_delay);
-      digitalWrite(main_2, LOW);
-      writeSD("Secondary Main Deployed");
-      
-      // HWSERIAL.println("Main Deployed \n\n\n\n\n\n\n");
+        digitalWrite(main_2, HIGH);
+        delay(charge_delay);
+        digitalWrite(main_2, LOW);
+        writeSD("Secondary Main Deployed");
+      }
     }
-  }
+        
 
   pre_alt = Alt;
 
 // Print combined data
 
-  String dataString = String(Temp) + "," + String(Press) + "," + String(Alt) + "," +
-                String(Accel_x2) + "," + String(Accel_y2) + "," + String(Accel_z2) + "," +
-                String(Accel_x) + "," + String(Accel_y) + "," + String(Accel_z) + "," +
-                String(Gyro_x) + "," + String(Gyro_y) + "," + String(Gyro_z) + "," +
-                String(Mag_x) + "," + String(Mag_y) + "," + String(Mag_z) + "," +
-                String(Quaternion_1) + "," + String(Quaternion_2) + "," + 
-                String(Quaternion_3) + "," + String(Quaternion_4) + "," +
-                String(stage);
+  String dataString = String(Temp, 7) + "," + String(Press, 7) + "," + String(Alt, 7) + "," +
+                String(Accel_x2, 7) + "," + String(Accel_y2, 7) + "," + String(Accel_z2, 7) + "," +
+                String(Accel_x, 7) + "," + String(Accel_y, 7) + "," + String(Accel_z, 7) + "," +
+                String(Gyro_x, 7) + "," + String(Gyro_y, 7) + "," + String(Gyro_z, 7) + "," +
+                String(Mag_x, 7) + "," + String(Mag_y, 7) + "," + String(Mag_z, 7) + "," +
+                String(Quaternion_1, 7) + "," + String(Quaternion_2, 7) + "," + 
+                String(Quaternion_3, 7) + "," + String(Quaternion_4, 7) + "," +
+                String(stage) + "," + String(millis());
 
-  Serial.println(dataString); 
+  //Serial.println(dataString); 
               
 
   HWSERIAL.println(dataString);
   
-  writeSD(dataString);
+  //writeSD(dataString);
 
 
   if(HWSERIAL.available() > 0) {
@@ -304,22 +363,26 @@ void loop(){
       digitalWrite(camera1, LOW);
       digitalWrite(camera2, LOW);
     }else if (receivedData == "Fire Main P"){
+      Serial.println("Main Primary"); 
       HWSERIAL.println("TEENSY Fired Main Primary");
       digitalWrite(main_1, HIGH);
       delay(charge_delay);
       digitalWrite(main_1, LOW);
 
     } else if (receivedData == "Fire Main S"){
+      Serial.println("Main Secondary"); 
       HWSERIAL.println("TEENSY Fired Main Secondary");
       digitalWrite(main_2, HIGH);
       delay(charge_delay);
       digitalWrite(main_2, LOW);
     } else if (receivedData == "Fire Drogue P"){
+      Serial.println("Drogue Primary"); 
       HWSERIAL.println("TEENSY Fired Drogue Primary");
       digitalWrite(drogue_1, HIGH);
       delay(charge_delay);
       digitalWrite(drogue_1, LOW);
     } else if (receivedData == "Fire Drogue S"){
+      Serial.println("Drogue Secondary"); 
       HWSERIAL.println("TEENSY Fired Drogue Secondary");
       digitalWrite(drogue_2, HIGH);
       delay(charge_delay);
