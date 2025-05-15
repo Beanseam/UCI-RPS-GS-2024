@@ -150,6 +150,7 @@ def read_serial(serial_port, baudrate):
             line = ser.readline().decode("utf-8").strip()
             
             data_list = line.split(',')
+
             if len(data_list)<19:
                 continue
             with sensor_data_lock:
@@ -176,6 +177,7 @@ def read_serial(serial_port, baudrate):
                         'z': data_list[14]
                 }
                 sensor_data['quaternion'] = {
+
                         '1': data_list[15],
                         '2': data_list[16],
                         '3': data_list[17],
@@ -183,9 +185,13 @@ def read_serial(serial_port, baudrate):
                 }
 
                 sensor_data['timestamp'] = datetime.datetime.now().isoformat()
+                #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
+#                  if(len(data_list) > 16):
+#                   sensor_data['camera'] = data_list[16]
             time.sleep(0.3)
-            #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
-            
+           
+             
+          
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
     except Exception as e:
@@ -275,6 +281,8 @@ if __name__ == '__main__':
         start_test_thread()
     else:
         start_serial_thread()
+
     socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
+
     
     
