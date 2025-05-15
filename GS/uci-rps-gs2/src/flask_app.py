@@ -253,6 +253,7 @@ def send_data():
         state = request.json["state"]
         response = None
         if state == "on":
+
             print("Camera On")
             send_command("ON")
         elif state == "off":
@@ -273,6 +274,7 @@ def send_data():
 
         elif state == "DS":
             print("DS Fired")
+
             send_command("Fire Drogue S")
         return jsonify({"status" : "OK", "state": state})
     except Exception as e:
