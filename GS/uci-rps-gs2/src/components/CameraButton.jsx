@@ -7,9 +7,10 @@ export default function CameraButton() {
   const [DP, setDPFired] = useState(false);
   const [DS, setDSFired] = useState(false);
   const onClick = async() => {
+    console.log("Camera button pressed")
     let res;
     if(!isOn){
-        res = await fetch('http://localhost:5000/camera', {
+        res = await fetch('http://localhost:7000/command', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -18,7 +19,7 @@ export default function CameraButton() {
         });
     }
     else{
-        res = await fetch('http://localhost:5000/camera', {
+        res = await fetch('http://localhost:7000/command', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
@@ -44,14 +45,14 @@ export default function CameraButton() {
 
   };
 const handleButtonClick = async (stateName, isActive, setActive) => {
-  const res = await fetch('http://localhost:5000/camera', {
+  const res = await fetch('http://localhost:7000/command', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ state: `${stateName}` }), // directly send MP, MS, DP, or DS
   });
-
+  console.log("firing button pressed")
   if (!res.ok) {
     throw new Error(`HTTP error! Status: ${res.status}`);
   } else {

@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import serial
 import threading
+from threading import Thread
 import sys
 from collections import deque, defaultdict
 import datetime
@@ -22,6 +23,9 @@ test_lock = threading.Lock()
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
+
+app_api = Flask(__name__ + "_api")
+CORS(app_api, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 sensor_data = {}
 test_data = {}
@@ -132,16 +136,10 @@ def read_test():
         time.sleep(dt)
         t += dt
 
-def read_serial(serial_port, baudrate):
+def read_serial(ser):
     global sensor_data
-    global data
     print('Reading serial data...')
 
-    try: 
-        ser = serial.Serial(serial_port, baudrate, timeout=1) # for Windows
-    except serial.SerialException as e:
-        print(f"read_serial Error: {e}")
-        return
     print("Serial data reading thread started.")
     try:
         while True:
@@ -150,10 +148,9 @@ def read_serial(serial_port, baudrate):
                 time.sleep(0.01)
                 continue
             line = raw_line.decode("utf-8", errors='ignore').strip()
-            
             data_list = line.split(',')
 
-            if len(data_list)<19:
+            if len(data_list) < 19:
                 continue
             try:
                 current_data = {
@@ -176,21 +173,14 @@ def read_serial(serial_port, baudrate):
                     },
                     'timestamp': datetime.datetime.now().isoformat()
                 }
-                #print(f"Data: {current_data}")
             except ValueError as e:
                 print(f"ValueError: {e} - Line: {line} - len: {len(data_list)}")
                 continue
 
             with sensor_data_lock:
                 sensor_data = current_data
-                #csv_log.write_to_csv(csv_log.flatten_data(sensor_data))
-#                  if(len(data_list) > 16):
-#                   sensor_data['camera'] = data_list[16]
             socketio.emit('json_response', current_data)
 
-           
-             
-          
     except serial.SerialException as e:
         print(f"Serial Error: {e}")
     except Exception as e:
@@ -199,6 +189,7 @@ def read_serial(serial_port, baudrate):
         if ser.is_open:
             print("Closing serial port.")
             ser.close()
+
   
 
 @socketio.on('connect')
@@ -234,22 +225,25 @@ def get_test_data_api():
     return jsonify(data_copy)
 
 def send_command(command):
+    global serial_instance
     try:
-        with serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE) as ser:
+        if serial_instance and serial_instance.is_open:
             print(f"Sending command: {command}")
-            ser.write(command.encode())
+            serial_instance.write(command.encode())
             return True
-    except serial.SerialException as e_ser:
-        print(f"Serial error sending command to {SELECTED_SERIAL_PORT}: {e_ser}")
-        return False
+        else:
+            print("Serial port is not open.")
+            return False
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error while sending command: {e}")
         return False
+    
+def run_command_api():
+    app_api.run(host="0.0.0.0", port=7000, debug=False)
 
-@app.route('/camera', methods=['POST'])
-@app.route('/camera', methods=['POST'])
+@app_api.route('/command', methods=['POST'])
 def send_data():
-   # print("Received POST request")
+    print("Received POST request")
     try:
         state = request.json["state"]
         response = None
@@ -281,9 +275,15 @@ def send_data():
 
 
 def start_serial_thread():
-    serial_thread = threading.Thread(target=read_serial, daemon = True, args=(SERIAL_PORT, SERIAL_BAUDRATE))
-    serial_thread.start()
-    return serial_thread
+    global serial_instance
+    try:
+        serial_instance = serial.Serial(SERIAL_PORT, SERIAL_BAUDRATE, timeout=1)
+        serial_thread = threading.Thread(target=read_serial, daemon=True, args=(serial_instance,))
+        serial_thread.start()
+        return serial_thread
+    except Exception as e:
+        print(f"Failed to start serial thread: {e}")
+        return None
 
 def start_test_thread():
     test_thread = threading.Thread(target=read_test, daemon = True)
@@ -296,5 +296,5 @@ if __name__ == '__main__':
         start_test_thread()     
     else:
         start_serial_thread()
-
+    Thread(target=run_command_api).start()
     socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
