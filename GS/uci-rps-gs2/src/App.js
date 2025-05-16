@@ -35,7 +35,6 @@ function App() {
     });
   
     socketRef.on("json_response", (dataString) => {
-      console.log(dataString);
       if (Object.keys(dataString).length !=0 ){
       try {
         setSensorData(prevData => ({
