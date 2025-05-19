@@ -27,12 +27,19 @@ function Rocket({ quaternion }) {
   }, []);
 
   useFrame(() => {
-    if (model) {
-      const initialRotation = new THREE.Quaternion();
-      initialRotation.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-      model.quaternion.copy(initialRotation).multiply(quaternionRef.current);
-    }
-  });
+  if (model) {
+    const initialRotation = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(1, 0, 0),
+      Math.PI / 2
+    );
+
+    const finalQuaternion = new THREE.Quaternion()
+      .copy(initialRotation)
+      .multiply(quaternionRef.current);
+
+    model.quaternion.copy(finalQuaternion);
+  }
+});
 
   if (!model) return null;
 
