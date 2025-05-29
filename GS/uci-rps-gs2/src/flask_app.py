@@ -4,6 +4,7 @@ import serial
 import threading
 from threading import Thread
 import sys
+import subprocess
 from collections import deque, defaultdict
 import datetime
 import json
@@ -13,6 +14,7 @@ from flask_socketio import SocketIO
 import random
 import math
 import time
+import os
 
 
 SERIAL_PORT = 'COM6'
@@ -150,26 +152,27 @@ def read_serial(ser):
             line = raw_line.decode("utf-8", errors='ignore').strip()
             data_list = line.split(',')
 
-            if len(data_list) < 19:
+            if len(data_list) < 21:
                 continue
             try:
                 current_data = {
-                    'temperature': float(data_list[0]),
-                    'press': float(data_list[1]), 
-                    'altitude': float(data_list[2]),
+                    'voltage': (float(data_list[0]), float(data_list[1])),
+                    'temperature': float(data_list[2]),
+                    'press': float(data_list[3]), 
+                    'altitude': float(data_list[4]),
                     'acceleration': {
-                        'x2': float(data_list[3]), 'y2': float(data_list[4]), 'z2': float(data_list[5]),
-                        'x': float(data_list[6]), 'y': float(data_list[7]), 'z': float(data_list[8])
+                        'x2': float(data_list[5]), 'y2': float(data_list[6]), 'z2': float(data_list[7]),
+                        'x': float(data_list[8]), 'y': float(data_list[9]), 'z': float(data_list[10])
                     },
                     'gyro': {
-                        'x': float(data_list[9]), 'y': float(data_list[10]), 'z': float(data_list[11])
+                        'x': float(data_list[11]), 'y': float(data_list[12]), 'z': float(data_list[13])
                     },
                     'mag': {
-                        'x': float(data_list[12]), 'y': float(data_list[13]), 'z': float(data_list[14])
+                        'x': float(data_list[14]), 'y': float(data_list[15]), 'z': float(data_list[16])
                     },
                     'quaternion': {
-                        '1': float(data_list[15]), '2': float(data_list[16]),
-                        '3': float(data_list[17]), '4': float(data_list[18])
+                        '1': float(data_list[17]), '2': float(data_list[18]),
+                        '3': float(data_list[19]), '4': float(data_list[20])
                     },
                     'timestamp': datetime.datetime.now().isoformat()
                 }
@@ -292,9 +295,26 @@ def start_test_thread():
 
 if __name__ == '__main__':
     SERIAL_PORT = select_port()
+    
+    # Start graphqt.py in a separate process
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    graphqt_path = os.path.join(current_dir, 'graphqt.py')
+    try:
+        visualization_process = subprocess.Popen([sys.executable, graphqt_path], 
+                                              stdout=subprocess.PIPE,
+                                              stderr=subprocess.PIPE)
+        print("Started visualization window")
+    except Exception as e:
+        print(f"Failed to start visualization: {e}")
+    
     if SERIAL_PORT is None:
         start_test_thread()     
     else:
         start_serial_thread()
     Thread(target=run_command_api).start()
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
+    try:
+        socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
+    finally:
+        if 'visualization_process' in locals():
+            visualization_process.terminate()
+            print("Terminated visualization window")
