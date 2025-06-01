@@ -295,26 +295,9 @@ def start_test_thread():
 
 if __name__ == '__main__':
     SERIAL_PORT = select_port()
-    
-    # Start graphqt.py in a separate process
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    graphqt_path = os.path.join(current_dir, 'graphqt.py')
-    try:
-        visualization_process = subprocess.Popen([sys.executable, graphqt_path], 
-                                              stdout=subprocess.PIPE,
-                                              stderr=subprocess.PIPE)
-        print("Started visualization window")
-    except Exception as e:
-        print(f"Failed to start visualization: {e}")
-    
     if SERIAL_PORT is None:
         start_test_thread()     
     else:
         start_serial_thread()
     Thread(target=run_command_api).start()
-    try:
-        socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
-    finally:
-        if 'visualization_process' in locals():
-            visualization_process.terminate()
-            print("Terminated visualization window")
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True, allow_unsafe_werkzeug=True, use_reloader=False)
