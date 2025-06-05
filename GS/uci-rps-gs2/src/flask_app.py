@@ -4,6 +4,7 @@ import serial
 import threading
 from threading import Thread
 import sys
+import subprocess
 from collections import deque, defaultdict
 import datetime
 import json
@@ -13,6 +14,7 @@ from flask_socketio import SocketIO
 import random
 import math
 import time
+import os
 
 
 SERIAL_PORT = 'COM6'
@@ -150,26 +152,27 @@ def read_serial(ser):
             line = raw_line.decode("utf-8", errors='ignore').strip()
             data_list = line.split(',')
 
-            if len(data_list) < 19:
+            if len(data_list) < 21:
                 continue
             try:
                 current_data = {
-                    'temperature': float(data_list[0]),
-                    'press': float(data_list[1]), 
-                    'altitude': float(data_list[2]),
+                    'voltage': (float(data_list[0]), float(data_list[1])),
+                    'temperature': float(data_list[2]),
+                    'press': float(data_list[3]), 
+                    'altitude': float(data_list[4]),
                     'acceleration': {
-                        'x2': float(data_list[3]), 'y2': float(data_list[4]), 'z2': float(data_list[5]),
-                        'x': float(data_list[6]), 'y': float(data_list[7]), 'z': float(data_list[8])
+                        'x2': float(data_list[5]), 'y2': float(data_list[6]), 'z2': float(data_list[7]),
+                        'x': float(data_list[8]), 'y': float(data_list[9]), 'z': float(data_list[10])
                     },
                     'gyro': {
-                        'x': float(data_list[9]), 'y': float(data_list[10]), 'z': float(data_list[11])
+                        'x': float(data_list[11]), 'y': float(data_list[12]), 'z': float(data_list[13])
                     },
                     'mag': {
-                        'x': float(data_list[12]), 'y': float(data_list[13]), 'z': float(data_list[14])
+                        'x': float(data_list[14]), 'y': float(data_list[15]), 'z': float(data_list[16])
                     },
                     'quaternion': {
-                        '1': float(data_list[15]), '2': float(data_list[16]),
-                        '3': float(data_list[17]), '4': float(data_list[18])
+                        '1': float(data_list[17]), '2': float(data_list[18]),
+                        '3': float(data_list[19]), '4': float(data_list[20])
                     },
                     'timestamp': datetime.datetime.now().isoformat()
                 }
@@ -247,12 +250,19 @@ def send_data():
     try:
         state = request.json["state"]
         response = None
-        if state == "on":
-            print("Camera On")
-            send_command("ON")
-        elif state == "off":
-            print("Camera Off")
-            send_command("OFF")
+        if state == "Cam1on":
+            print("Camera 1 On")
+            send_command("CAM1ON")
+        elif state == "Cam1off":
+            print("Camera 1 Off")
+            send_command("CAM1OFF")
+
+        if state == "Cam2on":
+            print("Camera 2 On")
+            send_command("CAM2ON")
+        elif state == "Cam2off":
+            print("Camera 2 Off")
+            send_command("CAM2OFF")
 
         elif state == "MP":
             print("MP fired")
