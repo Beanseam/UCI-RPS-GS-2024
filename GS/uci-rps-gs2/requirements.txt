@@ -1,0 +1,10 @@
+flask==2.0.1
+flask-cors==3.0.10
+flask-socketio==5.1.1
+pyserial==3.5
+python-socketio==5.4.0
+PyQt5==5.15.6
+pyqtgraph==0.12.3
+numpy==1.21.2
+trimesh==3.9.35
+PyOpenGL==3.1.6 
