@@ -2,7 +2,7 @@ import "./index.css";
 
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from "socket.io-client";
-import Model from "./components/model.jsx";
+import BabylonRocketViewer from './components/model';
 //import Title from './components/Title.jsx';
 import AltGraph from './components/AltGraph.jsx';
 import AcelGraph from './components/AcelGraph.jsx';
@@ -14,14 +14,16 @@ import CameraButton from "./components/CameraButton.jsx";
 
 
 function App() {
+  const quatRef = useRef({ x: 0, y: 0, z: 0, w: 1 });
   const [sensorData, setSensorData] = useState({
     time: [], alt: [], temp: [], pres: [],
     acc_x: [], acc_y: [], acc_z: [],
     gyro_x: [], gyro_y: [], gyro_z: [],
     mag_x: [], mag_y: [], mag_z: [],
     acc_x_2: [], acc_y_2: [], acc_z_2: [],
-    state: [],
-    quat: { x: 0, y: 0, z: 0, w: 1 }
+    state: [], voltage1: 0, voltage2: 0
+    // ,
+    // quat: { x: 0, y: 0, z: 0, w: 1 }
   });
   
   const socketRef = io("http://localhost:5000");
@@ -37,6 +39,12 @@ function App() {
     socketRef.on("json_response", (dataString) => {
       if (Object.keys(dataString).length !=0 ){
       try {
+        quatRef.current = {
+          x: parseFloat(dataString?.quaternion?.["1"]) || 0,
+          y: parseFloat(dataString?.quaternion?.["3"]) || 0,
+          z: parseFloat(dataString?.quaternion?.["2"]) || 0,
+          w: parseFloat(dataString?.quaternion?.["4"]) || 1,
+        };
         setSensorData(prevData => ({
           ...prevData,
            temp: [...prevData.temp, parseInt(dataString['temperature'])],
@@ -54,6 +62,8 @@ function App() {
           mag_x: [...prevData.mag_x, parseFloat(dataString['mag']['x'])],
           mag_y: [...prevData.mag_y, parseFloat(dataString['mag']['y'])],
           mag_z: [...prevData.mag_z, parseFloat(dataString['mag']['z'])],
+          voltage1: parseFloat(dataString['voltage'][0]),
+          voltage2: parseFloat(dataString['voltage'][0]),
           // quat: {
           //   x: parseFloat(dataString['quaternion']['1']),
           //   y: parseFloat(dataString['quaternion']['3']),
@@ -61,14 +71,14 @@ function App() {
           //   w: parseFloat(dataString['quaternion']['4'])
           // },
           
-          quat: prevData.alt.length % 3 === 0
-            ? {
-                x: parseFloat(dataString['quaternion']['1']),
-            y: parseFloat(dataString['quaternion']['3']),
-            z: parseFloat(dataString['quaternion']['2']),
-            w: parseFloat(dataString['quaternion']['4'])
-              }
-            : prevData.quat,
+          // quat: prevData.alt.length % 3 === 0
+          //   ? {
+          //       x: parseFloat(dataString['quaternion']['1']),
+          //   y: parseFloat(dataString['quaternion']['3']),
+          //   z: parseFloat(dataString['quaternion']['2']),
+          //   w: parseFloat(dataString['quaternion']['4'])
+          //     }
+          //   : prevData.quat,
           state: [...prevData.state, 0],
           time: [...prevData.time, new Date(dataString['timestamp']).getTime()]
         }));
@@ -133,7 +143,7 @@ function App() {
         sensorData.acc_z_2?.[index] ?? "",
         sensorData.mag_x?.[index] ?? "",
         sensorData.mag_y?.[index] ?? "",
-        sensorData.mag_z?.[index] ?? ""
+        sensorData.mag_z?.[index] ?? "",
       ]);
 
       const csvContent = [
@@ -201,7 +211,8 @@ function App() {
             magDataY={sensorData['mag_y']}
             magDataZ={sensorData['mag_z']}
             />
-            <Model quaternion={sensorData?.['quat']} />
+            {/* <Model quaternion={quatRef} /> */}
+            <BabylonRocketViewer quaternionRef={quatRef} />
           </div>
           
         </div>
@@ -254,7 +265,7 @@ function App() {
                 
                 </tbody>
               </table>
-              <CameraButton/>
+              <CameraButton voltage1={sensorData.voltage1} voltage2={sensorData.voltage2} />
             </div>
         </div>
       </footer>

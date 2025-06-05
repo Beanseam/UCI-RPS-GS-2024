@@ -250,12 +250,19 @@ def send_data():
     try:
         state = request.json["state"]
         response = None
-        if state == "on":
-            print("Camera On")
-            send_command("ON")
-        elif state == "off":
-            print("Camera Off")
-            send_command("OFF")
+        if state == "Cam1on":
+            print("Camera 1 On")
+            send_command("CAM1ON")
+        elif state == "Cam1off":
+            print("Camera 1 Off")
+            send_command("CAM1OFF")
+
+        if state == "Cam2on":
+            print("Camera 2 On")
+            send_command("CAM2ON")
+        elif state == "Cam2off":
+            print("Camera 2 Off")
+            send_command("CAM2OFF")
 
         elif state == "MP":
             print("MP fired")
