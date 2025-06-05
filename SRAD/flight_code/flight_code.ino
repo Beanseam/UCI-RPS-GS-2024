@@ -21,9 +21,6 @@
 #define camera2_adc 14 //camera 2 adc
 
 #define HWSERIAL Serial7 // Hardware Serial Needed for RF
-#define CAM_SERIAL Serial1 // Serial for Camera
-
-
 
 Adafruit_BMP3XX bmp;
 BPM390_Module bmpModule(bmp);
@@ -91,10 +88,11 @@ void setup() {
   
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
+  analogWriteFrequency(buzzer, 4500);
+  analogWrite(buzzer, 128);
   
   if (!SD.begin(BUILTIN_SDCARD)) {
   Serial.println("SD card failed or not present.");
-  //tone(buzzer, 3000, 500);
   sdAvailable = false;
 } else {
   sdAvailable = true;
@@ -107,7 +105,7 @@ void setup() {
   pinMode(main_2, OUTPUT);
   pinMode(drogue_1, OUTPUT);
   pinMode(drogue_2, OUTPUT);
-  //pinMode(buzzer, OUTPUT);
+  pinMode(buzzer, OUTPUT);
   pinMode(camera1, OUTPUT);
   pinMode(camera2, OUTPUT);
 
@@ -134,10 +132,9 @@ void setup() {
     Serial.println("Could not find a valid LSM9DS1 sensor");
   }
 
-  // filter.begin(200); // Initialize Madwick at 200Hz
   algo.begin(200);
 
-  String dataString = "Temp,Press,Alt,Accel_x2,Accel_y2,Accel_z2,Accel_x,Accel_y,Accel_z,Gyro_x,Gyro_y,Gyro_z,Mag_x,Mag_y,Mag_z,Quaternion_1,Quaternion_2,Quaternion_3,Quaternion_4,Stage";
+  String dataString = "Cam1,Cam2,Temp,Press,Alt,Accel_x2,Accel_y2,Accel_z2,Accel_x,Accel_y,Accel_z,Gyro_x,Gyro_y,Gyro_z,Mag_x,Mag_y,Mag_z,Quaternion_1,Quaternion_2,Quaternion_3,Quaternion_4,Stage,Time";
   writeSD(dataString);
 
   for (int i = 0; i <= 10; i++){
@@ -149,10 +146,9 @@ void setup() {
     Serial.println("Failed to get BPM390 data");
   }}
  
-
-  // Serial.println(startAlt);
   delay(1000);
-  //tone(buzzer, 3100);
+  analogWriteFrequency(buzzer, 4500);
+  analogWrite(buzzer, 128);
 }
   
 
@@ -199,7 +195,6 @@ void loop(){
         Mag_y = -LSM9DS1_data.mag_z;
         Mag_z = -LSM9DS1_data.mag_y;
 
-        // filter.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
         algo.update(Gyro_x, Gyro_y, Gyro_z, Accel_x, Accel_y, Accel_z, Mag_x, Mag_y, Mag_z);
 
         float qw, qx, qy, qz;
@@ -216,69 +211,6 @@ void loop(){
     Serial.println("Failed to get LSM9DS1 data");
   }
 
-
-  // launch_flag = true;
-  // drogue_flag = false;
-  // main_flag = false;
-
-
-
-  // if (launch_flag == false) {
-  //   if (rise_counter > 10 && pre_alt - Alt < 0) {
-  //     launch_flag = true;
-  //     stage = 1;
-
-  //     // HWSERIAL.println("Launch Detected\n\n\n\n\n\n\n\n\n\n\n");
-  //     writeSD("Launch Detected!");
-
-  //   } else if (pre_alt - Alt < 0) {
-  //     rise_counter = rise_counter + 1;
-  //   } else {
-  //     rise_counter = 0;
-  //   }
-  // } else if (launch_flag == true && drogue_flag == false) {
-  //   if (fall_counter > 3 && round(pre_alt) - round(Alt) > 0) {
-  //       drogue_flag = true;
-  //       stage = 2;
-
-  //       digitalWrite(drogue_1, HIGH);
-  //       delay(charge_delay);
-  //       digitalWrite(drogue_1, LOW);
-  //       writeSD("Primary Drogue Deployed");
-
-  //       delay(backup_delay);
-
-  //       digitalWrite(drogue_2, HIGH);
-  //       delay(charge_delay);
-  //       digitalWrite(drogue_2, LOW);
-  //       writeSD("Secondary Drogue Deployed");
-
-  //       // HWSERIAL.println("Drogue Deployed \n\n\n\n\n\n\n\n\n\n\n\n");
-  //   } else if (round(pre_alt) - round(Alt) > 0) {
-  //       fall_counter = fall_counter + 1;
-  //   } else {
-  //       fall_counter = 0;
-  //   }
-  // } else if (launch_flag == true && main_flag == false && drogue_flag == true) {
-  //   if (Alt < (startAlt+304.8)) {
-  //     main_flag = true;
-  //     stage = 3;
-
-  //     digitalWrite(main_1, HIGH);
-  //     delay(charge_delay);
-  //     digitalWrite(main_1, LOW);
-  //     writeSD("Primary Main Deployed");
-  //     delay(backup_delay);
-
-  //     digitalWrite(main_2, HIGH);
-  //     delay(charge_delay);
-  //     digitalWrite(main_2, LOW);
-  //     writeSD("Secondary Main Deployed");
-      
-  //     // HWSERIAL.println("Main Deployed \n\n\n\n\n\n\n");
-  //   }
-  // }
-
     if (!launch_flag) {
       if (rise_counter > 10 && (pre_alt - Alt < 0 )) {
         launch_flag = true;
@@ -290,7 +222,7 @@ void loop(){
       }
     }
     if (!drogue_flag) {
-      if ((pre_alt - Alt > 0.1 && fall_counter >= 1) && (Alt - startAlt > 500)) {
+      if ((pre_alt - Alt > 0.1 && fall_counter >= 1) && (Alt - startAlt > 175)) {
         drogue_flag = true;
         digitalWrite(drogue_1, HIGH);
         delay(charge_delay);
@@ -313,7 +245,7 @@ void loop(){
     }
     
     if (!main_flag) {
-      if ((Alt >= 200 + startAlt) && (Alt <= 308 + startAlt) && (pre_alt - Alt > 1)) { // 1 should be changed to terminal velocity
+      if ((Alt >= 100 + startAlt) && (Alt <= 175 + startAlt) && (pre_alt - Alt > 1)) { // 1 should be changed to terminal velocity
         main_flag = true;
         digitalWrite(main_1, HIGH);
         delay(charge_delay);
@@ -332,6 +264,10 @@ void loop(){
 
   pre_alt = Alt;
 
+  int voltage_left = analogRead(camera1_adc);
+  int voltage_right = analogRead(camera2_adc);
+
+
 // Print combined data
 
   String dataString = String(Temp, 7) + "," + String(Press, 7) + "," + String(Alt, 7) + "," +
@@ -340,25 +276,33 @@ void loop(){
                 String(Gyro_x, 7) + "," + String(Gyro_y, 7) + "," + String(Gyro_z, 7) + "," +
                 String(Mag_x, 7) + "," + String(Mag_y, 7) + "," + String(Mag_z, 7) + "," +
                 String(Quaternion_1, 7) + "," + String(Quaternion_2, 7) + "," + 
-                String(Quaternion_3, 7) + "," + String(Quaternion_4, 7) + "," +
-                String(stage) + "," + String(millis());
-
-  //Serial.println(dataString); 
-              
+                String(Quaternion_3, 7) + "," + String(Quaternion_4, 7) + "," + String(stage) + "," + String(millis());
+  
+  // String dataString = String(voltage_left) + "," + String(voltage_right) + "," + String(Temp, 7) + "," + String(Press, 7) + "," + String(Alt, 7) + "," +
+  //               String(Accel_x2, 7) + "," + String(Accel_y2, 7) + "," + String(Accel_z2, 7) + "," +
+  //               String(Accel_x, 7) + "," + String(Accel_y, 7) + "," + String(Accel_z, 7) + "," +
+  //               String(Gyro_x, 7) + "," + String(Gyro_y, 7) + "," + String(Gyro_z, 7) + "," +
+  //               String(Mag_x, 7) + "," + String(Mag_y, 7) + "," + String(Mag_z, 7) + "," +
+  //               String(Quaternion_1, 7) + "," + String(Quaternion_2, 7) + "," + 
+  //               String(Quaternion_3, 7) + "," + String(Quaternion_4, 7) + "," +
+  //               String(stage) + "," + String(millis());              
 
   HWSERIAL.println(dataString);
   
-  //writeSD(dataString);
+  writeSD(dataString);
 
 
   if(HWSERIAL.available() > 0) {
     String receivedData = HWSERIAL.readStringUntil('\n');
     receivedData.trim();
+    Serial.println(receivedData);
     if(receivedData == "ON"){
+      Serial.println("Camera On Recieved");
       HWSERIAL.println("TEENSY Camera on");
       digitalWrite(camera1,HIGH);
       digitalWrite(camera2,HIGH);
     }else if (receivedData == "OFF"){
+      Serial.println("Camera Off Recieved");
       HWSERIAL.println("TEENSY Camera off");
       digitalWrite(camera1, LOW);
       digitalWrite(camera2, LOW);
@@ -368,7 +312,6 @@ void loop(){
       digitalWrite(main_1, HIGH);
       delay(charge_delay);
       digitalWrite(main_1, LOW);
-
     } else if (receivedData == "Fire Main S"){
       Serial.println("Main Secondary"); 
       HWSERIAL.println("TEENSY Fired Main Secondary");
@@ -378,16 +321,31 @@ void loop(){
     } else if (receivedData == "Fire Drogue P"){
       Serial.println("Drogue Primary"); 
       HWSERIAL.println("TEENSY Fired Drogue Primary");
+      writeSD("Drouge Primary");
       digitalWrite(drogue_1, HIGH);
       delay(charge_delay);
       digitalWrite(drogue_1, LOW);
     } else if (receivedData == "Fire Drogue S"){
       Serial.println("Drogue Secondary"); 
       HWSERIAL.println("TEENSY Fired Drogue Secondary");
+      writeSD("Drouge Secondary");
       digitalWrite(drogue_2, HIGH);
       delay(charge_delay);
       digitalWrite(drogue_2, LOW); 
-
-    }
-  
+    }  else if (receivedData == "CAM1ON"){
+      Serial.println("Camera1 On Recieved");
+      HWSERIAL.println("TEENSY Camera1 on");
+      digitalWrite(camera1,HIGH);
+    } else if (receivedData == "CAM2ON"){
+      Serial.println("Camera2 On Recieved");
+      HWSERIAL.println("TEENSY Camera2 on");
+      digitalWrite(camera2,HIGH);
+    } else if (receivedData == "CAM1OFF"){
+      Serial.println("Camera1 Off Recieved");
+      HWSERIAL.println("TEENSY Camera1 OFF");
+      digitalWrite(camera1,LOW);
+    } else if (receivedData == "CAM2OFF"){
+      Serial.println("Camera2 Off Recieved");
+      HWSERIAL.println("TEENSY Camera2 OFF");
+      digitalWrite(camera2,LOW);
   } }
