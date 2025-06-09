@@ -63,7 +63,7 @@ function App() {
           mag_y: [...prevData.mag_y, parseFloat(dataString['mag']['y'])],
           mag_z: [...prevData.mag_z, parseFloat(dataString['mag']['z'])],
           voltage1: parseFloat(dataString['voltage'][0]),
-          voltage2: parseFloat(dataString['voltage'][0]),
+          voltage2: parseFloat(dataString['voltage'][1]),
           // quat: {
           //   x: parseFloat(dataString['quaternion']['1']),
           //   y: parseFloat(dataString['quaternion']['3']),
