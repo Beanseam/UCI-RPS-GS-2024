@@ -70,6 +70,12 @@ def read_test():
     acceleration_z = 0.0
     t = 0.0  # time in seconds
     dt = 0.1  # simulation timestep (100ms)
+    
+    # Initialize quaternion values
+    q1 = 0.0  # x
+    q2 = 0.0  # y
+    q3 = 0.0  # z
+    q4 = 1.0  # w
 
     while True:
         with test_lock:
@@ -98,43 +104,46 @@ def read_test():
             noisy_pressure = 1013.25 - altitude * 0.12 + random.uniform(-1, 1)
             noisy_mag = lambda: random.uniform(-50, 50)
 
-            # Simulate orientation change using sin/cos wave for quaternions
-            if altitude!=0:
+            # Simulate orientation change
+            if altitude > 0:
+                # Simulate a slow rotation during flight
+                rotation_speed = 0.1  # radians per second
+                q1 = math.sin(t * rotation_speed) * 0.1  # Small x rotation
+                q2 = math.cos(t * rotation_speed) * 0.1  # Small y rotation
+                q3 = math.sin(t * rotation_speed * 0.5) * 0.05  # Smaller z rotation
+                q4 = math.sqrt(1 - (q1*q1 + q2*q2 + q3*q3))  # Maintain unit quaternion
+            else:
+                # Reset to upright position when on ground
+                q1 = 0.0  # x
+                q2 = 0.0  # y
+                q3 = 0.0  # z
+                q4 = 1.0  # w
 
-                next_alt=10
-                if altitude>next_alt:
-                    q1+=0.05
-                    next_alt+=15
-            if altitude==0:
-                q1 = 0.0                     # x
-                q2 = 0.0                     # y
-                q3 = 0.0     # z
-                q4 = 1     # w
-            with test_lock:
-                test_data['temperature'] = noisy_temp
-                test_data['pressure'] = noisy_pressure
-                test_data['altitude'] = max(0.0, altitude)
-                test_data['acceleration'] = {
-                    'x2': random.uniform(-1, 1),
-                    'y2': random.uniform(-1, 1),
-                    'z2': acceleration_z + random.uniform(-0.5, 0.5),
-                    'x': random.uniform(-0.2, 0.2),
-                    'y': random.uniform(-0.2, 0.2),
-                    'z': acceleration_z
-                }
-                test_data['mag'] = {
-                    'x': noisy_mag(),
-                    'y': noisy_mag(),
-                    'z': noisy_mag()
-                }
-                test_data['quaternion'] = {
-                    '1': q1,
-                    '2': q2,
-                    '3': q3,
-                    '4': q4
-                }
-                test_data['timestamp'] = datetime.datetime.now().isoformat()
+            test_data['temperature'] = noisy_temp
+            test_data['pressure'] = noisy_pressure
+            test_data['altitude'] = max(0.0, altitude)
+            test_data['acceleration'] = {
+                'x2': random.uniform(-1, 1),
+                'y2': random.uniform(-1, 1),
+                'z2': acceleration_z + random.uniform(-0.5, 0.5),
+                'x': random.uniform(-0.2, 0.2),
+                'y': random.uniform(-0.2, 0.2),
+                'z': acceleration_z
+            }
+            test_data['mag'] = {
+                'x': noisy_mag(),
+                'y': noisy_mag(),
+                'z': noisy_mag()
+            }
+            test_data['quaternion'] = {
+                '1': q1,
+                '2': q2,
+                '3': q3,
+                '4': q4
+            }
+            test_data['timestamp'] = datetime.datetime.now().isoformat()
             socketio.emit('json_response', test_data)
+    
         time.sleep(dt)
         t += dt
 

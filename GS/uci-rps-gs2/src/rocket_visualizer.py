@@ -115,7 +115,9 @@ class OrientationVisualizer:
 
     def setup_socket_connections(self):
         @self.sio.on('json_response')
+        
         def on_json_response(data):
+         
             try:
                 quaternion = data.get('quaternion', {})
                 self.latest_quaternion = (
